@@ -61,7 +61,7 @@ export default function SobrePage() {
                   nossos alunos.
                 </p>
                 <p>
-                  Localizado na R. Sabbado D'Ângelo, 1369 - Itaquera, São Paulo,
+                  Localizado na R. Sabbado D&apos;Ângelo, 1369 - Itaquera, São Paulo,
                   somos reconhecidos como referência em Karate na região,
                   conforme destacado no{" "}
                   <a
@@ -115,12 +115,12 @@ export default function SobrePage() {
             <Card className="bg-gradient-to-br from-gray-50 to-white">
               <CardContent className="p-8 space-y-4 text-gray-700 text-lg">
                 <p>
-                  O <strong>Karate-Do</strong> (空手道 - "caminho das mãos
-                  vazias") é uma arte marcial que se desenvolveu em Okinawa,
+                  O <strong>Karate-Do</strong> (空手道 - &quot;caminho das mãos
+                  vazias&quot;) é uma arte marcial que se desenvolveu em Okinawa,
                   Japão, como meio de autodefesa. Ao longo do tempo, na luta
                   pela sobrevivência, o ser humano procurou meios de defesa para
                   vencer as adversidades, e em Okinawa se desenvolveu esta arte
-                  inicialmente chamada "TE" (Mão).
+                  inicialmente chamada &quot;TE&quot; (Mão).
                 </p>
                 <p>
                   Esta luta ensinava o praticante a enfrentar sem armas o seu
@@ -161,9 +161,9 @@ export default function SobrePage() {
                   elementos advindos de estilos de luta tradicionais de Okinawa.
                   Shorin é a pronúncia okinawana da palavra Shaolin – monastério
                   budista localizado na província chinesa de Henan –, e que
-                  significa "pequeno bosque". Considerando que "ryu" significa
-                  estilo, a tradução para Shorin-Ryu é "estilo do pequeno
-                  bosque", uma homenagem ao monastério chinês.
+                  significa &quot;pequeno bosque&quot;. Considerando que &quot;ryu&quot; significa
+                  estilo, a tradução para Shorin-Ryu é &quot;estilo do pequeno
+                  bosque&quot;, uma homenagem ao monastério chinês.
                 </p>
                 <p>
                   O estilo se desenvolveu a partir do Shuri-Te, praticado na
