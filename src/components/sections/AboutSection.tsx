@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import Image from "next/image";
 
 export default function AboutSection() {
   const ref = useRef(null);
@@ -30,10 +31,11 @@ export default function AboutSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <div className="relative h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl">
-              <img
+              <Image
                 src="/lp/foto-sobre.webp"
                 alt="OPAM Karate Dojo"
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
               {/* Overlay com caracteres japoneses */}
               <div className="absolute top-4 right-4 text-white text-5xl font-bold opacity-30 mix-blend-overlay">

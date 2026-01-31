@@ -3,16 +3,19 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
-        <img
+        <Image
           src="/lp/foto-hero.webp"
           alt="Karate OPAM"
-          className="w-full h-full object-cover"
+          fill
+          priority
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900/80 via-gray-800/70 to-red-900/80" />
       </div>

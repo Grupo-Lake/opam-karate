@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -108,10 +109,11 @@ export default function ClassesSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <div className="relative h-[500px] md:h-[600px] rounded-lg overflow-hidden shadow-2xl">
-              <img
+              <Image
                 src="/lp/foto-classes.webp"
                 alt="Turma OPAM Karate"
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
             </div>
           </motion.div>
