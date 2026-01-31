@@ -4,8 +4,51 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
+import { useState, FormEvent } from "react";
 
 export default function ContatoPage() {
+  const [formData, setFormData] = useState({
+    nome: "",
+    email: "",
+    telefone: "",
+    assunto: "Aula Experimental",
+    mensagem: "",
+  });
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+
+    // Construir a mensagem para o WhatsApp
+    const mensagemWhatsApp = `Olá! Vim através do site.
+
+*Nome:* ${formData.nome}
+*E-mail:* ${formData.email}
+*Telefone:* ${formData.telefone}
+*Assunto:* ${formData.assunto}
+
+*Mensagem:*
+${formData.mensagem}`;
+
+    // Codificar a mensagem para URL
+    const mensagemCodificada = encodeURIComponent(mensagemWhatsApp);
+
+    // Redirecionar para o WhatsApp
+    window.open(
+      `https://wa.me/5511969392260?text=${mensagemCodificada}`,
+      "_blank",
+    );
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -35,23 +78,24 @@ export default function ContatoPage() {
               {
                 icon: MapPin,
                 title: "Endereço",
-                content: "R. Sabbado D'Ângelo, 1369\nItaquera - São Paulo - SP\nCEP: 08215-545"
+                content:
+                  "R. Sabbado D&apos;Ângelo, 1369\nItaquera - São Paulo - SP\nCEP: 08215-545",
               },
               {
                 icon: Phone,
                 title: "Telefone / WhatsApp",
-                content: "(11) 96939-2260\nSensei Bruno Garcia"
+                content: "(11) 96939-2260\nSensei Bruno Garcia",
               },
               {
                 icon: Mail,
                 title: "E-mail",
-                content: "contato@opamkarate.com\ninfo@opamkarate.com"
+                content: "contato@opamkarate.com\ninfo@opamkarate.com",
               },
               {
                 icon: Clock,
                 title: "Horário de Atendimento",
-                content: "Segunda a Sexta: 14h às 21h\nSábado: 9h às 12h"
-              }
+                content: "Segunda a Sexta: 14h às 21h\nSábado: 9h às 12h",
+              },
             ].map((item, index) => {
               const Icon = item.icon;
               return (
@@ -97,13 +141,17 @@ export default function ContatoPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Nome Completo
                       </label>
                       <input
                         type="text"
+                        name="nome"
+                        value={formData.nome}
+                        onChange={handleChange}
+                        required
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
                         placeholder="Seu nome"
                       />
@@ -115,6 +163,10 @@ export default function ContatoPage() {
                       </label>
                       <input
                         type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
                         placeholder="seu@email.com"
                       />
@@ -126,6 +178,10 @@ export default function ContatoPage() {
                       </label>
                       <input
                         type="tel"
+                        name="telefone"
+                        value={formData.telefone}
+                        onChange={handleChange}
+                        required
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
                         placeholder="(00) 00000-0000"
                       />
@@ -135,7 +191,12 @@ export default function ContatoPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Assunto
                       </label>
-                      <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent">
+                      <select
+                        name="assunto"
+                        value={formData.assunto}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                      >
                         <option>Aula Experimental</option>
                         <option>Informações sobre Turmas</option>
                         <option>Valores e Planos</option>
@@ -148,14 +209,21 @@ export default function ContatoPage() {
                         Mensagem
                       </label>
                       <textarea
+                        name="mensagem"
+                        value={formData.mensagem}
+                        onChange={handleChange}
+                        required
                         rows={5}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
                         placeholder="Escreva sua mensagem..."
                       />
                     </div>
 
-                    <Button className="w-full bg-red-600 hover:bg-red-700">
-                      Enviar Mensagem
+                    <Button
+                      type="submit"
+                      className="w-full bg-red-600 hover:bg-red-700"
+                    >
+                      Enviar Mensagem via WhatsApp
                     </Button>
                   </form>
                 </CardContent>
@@ -178,12 +246,12 @@ export default function ContatoPage() {
                     {/* Placeholder for map */}
                     <div className="text-center text-gray-500">
                       <MapPin className="h-16 w-16 mx-auto mb-4" />
-                      <p className="text-lg font-medium">
-                        Mapa de Localização
-                      </p>
+                      <p className="text-lg font-medium">Mapa de Localização</p>
                       <p className="text-sm mt-2">
-                        R. Sabbado D'Ângelo, 1369<br />
-                        Itaquera - São Paulo - SP<br />
+                        R. Sabbado D&apos;Ângelo, 1369
+                        <br />
+                        Itaquera - São Paulo - SP
+                        <br />
                         CEP: 08215-545
                       </p>
                     </div>
@@ -209,9 +277,14 @@ export default function ContatoPage() {
               Prefere falar pelo WhatsApp?
             </h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
-              Entre em contato direto com nossa equipe e tire suas dúvidas em tempo real!
+              Entre em contato direto com nossa equipe e tire suas dúvidas em
+              tempo real!
             </p>
-            <a href="https://wa.me/5511969392260?text=Olá!%20Gostaria%20de%20informações%20sobre%20as%20aulas%20de%20Karate" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://wa.me/5511969392260?text=Olá!%20Gostaria%20de%20informações%20sobre%20as%20aulas%20de%20Karate"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Button
                 size="lg"
                 className="bg-white text-green-600 hover:bg-gray-100 text-lg px-8 py-6"
