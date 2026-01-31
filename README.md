@@ -128,6 +128,3 @@ npm run start
 Este projeto foi desenvolvido para o OPAM KARATE.
 
 ---
-
-**Desenvolvido com ❤️ usando Next.js e TypeScript**
-
