@@ -1,0 +1,19 @@
+# robots.txt para OPAM KARATE
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://opamkarate.com/sitemap.xml
+
+# Bloquear crawlers específicos conhecidos por não respeitar robots.txt
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: DotBot
+Disallow: /
+
+# Permitir crawlers de redes sociais
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
