@@ -85,7 +85,7 @@ export default function SobrePage() {
               className="relative h-[400px] rounded-lg overflow-hidden shadow-2xl"
             >
               <Image
-                src="/lp/foto-sobre.webp"
+                src="/sobre/sobre.webp"
                 alt="OPAM Karate Dojo"
                 fill
                 className="object-cover"
