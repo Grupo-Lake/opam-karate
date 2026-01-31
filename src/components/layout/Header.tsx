@@ -65,23 +65,27 @@ export default function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <div className="flex flex-col space-y-4 mt-8">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setIsOpen(false)}
-                    className="text-lg font-medium text-gray-700 hover:text-red-600 transition-colors"
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-                <a href="https://wa.me/5511969392260?text=Olá!%20Gostaria%20de%20informações%20sobre%20as%20aulas%20de%20Karate" target="_blank" rel="noopener noreferrer" className="w-full">
-                  <Button className="bg-red-600 hover:bg-red-700 w-full mt-4">
-                    Agende sua Aula
-                  </Button>
-                </a>
-              </div>
+              <nav className="flex flex-col h-full">
+                <div className="flex flex-col space-y-1 mt-8 flex-1">
+                  {navigation.map((item, index) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className="text-lg font-medium text-gray-800 hover:text-red-600 hover:bg-red-50 transition-colors px-4 py-3 rounded-lg"
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+                <div className="pt-6 pb-8 border-t border-gray-200">
+                  <a href="https://wa.me/5511969392260?text=Olá!%20Gostaria%20de%20informações%20sobre%20as%20aulas%20de%20Karate" target="_blank" rel="noopener noreferrer" className="block">
+                    <Button className="bg-red-600 hover:bg-red-700 w-full text-base font-semibold py-6 shadow-lg">
+                      Agende sua Aula
+                    </Button>
+                  </a>
+                </div>
+              </nav>
             </SheetContent>
           </Sheet>
         </div>

@@ -112,11 +112,6 @@ export default function Footer() {
                 <Youtube className="h-5 w-5" />
               </a>
             </div>
-                aria-label="Instagram OPAM Karate"
-              >
-                <Instagram className="h-5 w-5" />
-              </a>
-            </div>
             <p className="text-gray-400 text-sm mt-6">
               Siga-nos nas redes sociais e acompanhe nossas novidades!
             </p>
