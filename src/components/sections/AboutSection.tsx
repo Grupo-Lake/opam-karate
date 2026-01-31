@@ -29,9 +29,14 @@ export default function AboutSection() {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="relative h-[400px] md:h-[500px] bg-gradient-to-br from-red-600 to-gray-900 rounded-lg overflow-hidden">
-              {/* Placeholder for image */}
-              <div className="absolute inset-0 flex items-center justify-center text-white text-6xl font-bold opacity-20">
+            <div className="relative h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl">
+              <img
+                src="/lp/foto-sobre.webp"
+                alt="OPAM Karate Dojo"
+                className="w-full h-full object-cover"
+              />
+              {/* Overlay com caracteres japoneses */}
+              <div className="absolute top-4 right-4 text-white text-5xl font-bold opacity-30 mix-blend-overlay">
                 空手道
               </div>
             </div>

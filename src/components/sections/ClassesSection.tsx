@@ -3,35 +3,29 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Baby, User, Users2, Sword } from "lucide-react";
+import { Users2 } from "lucide-react";
 
 const classes = [
   {
-    icon: Baby,
-    title: "Infantil (4-7 anos)",
-    description: "Desenvolvimento motor, coordenação e introdução aos valores do Karate através de atividades lúdicas.",
-    features: ["Psicomotricidade", "Socialização", "Disciplina básica"]
-  },
-  {
-    icon: User,
-    title: "Juvenil (8-13 anos)",
-    description: "Técnicas fundamentais, kata e kumite com foco em disciplina e autocontrole.",
-    features: ["Técnicas básicas", "Katas", "Desenvolvimento físico"]
-  },
-  {
     icon: Users2,
-    title: "Adolescente/Adulto (14+ anos)",
-    description: "Treinamento completo com técnicas avançadas, preparação para competições e graduações.",
-    features: ["Técnicas avançadas", "Competições", "Defesa pessoal"]
+    title: "Turma Unificada (5+ anos)",
+    description:
+      "Nossa turma única acolhe praticantes de todas as idades e níveis, desde iniciantes a partir de 5 anos até os mais graduados faixas pretas.",
+    features: [
+      "Todas as idades e níveis",
+      "Desenvolvimento progressivo",
+      "Ambiente de aprendizado colaborativo",
+      "Técnicas adaptadas ao nível de cada aluno",
+    ],
   },
-  {
-    icon: Sword,
-    title: "Turma de Competição",
-    description: "Para atletas que desejam competir em nível estadual e nacional com treinos específicos.",
-    features: ["Treino intensivo", "Preparação para torneios", "Acompanhamento personalizado"]
-  }
 ];
 
 export default function ClassesSection() {
@@ -48,15 +42,15 @@ export default function ClassesSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Nossas <span className="text-red-600">Turmas</span>
+            Nossa <span className="text-red-600">Turma</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Turmas especializadas para todas as idades e objetivos
+            Uma turma única que une todas as idades e níveis de graduação
           </p>
           <div className="w-20 h-1 bg-red-600 mx-auto mt-4" />
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="flex justify-center">
           {classes.map((classItem, index) => {
             const Icon = classItem.icon;
             return (
@@ -65,6 +59,7 @@ export default function ClassesSection() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={isInView ? { opacity: 1, scale: 1 } : {}}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="w-full max-w-2xl"
               >
                 <Card className="h-full hover:shadow-2xl transition-all duration-300 hover:scale-105">
                   <CardHeader>
@@ -73,7 +68,9 @@ export default function ClassesSection() {
                         <Icon className="h-8 w-8 text-white" />
                       </div>
                       <div>
-                        <CardTitle className="text-2xl font-bold">{classItem.title}</CardTitle>
+                        <CardTitle className="text-2xl font-bold">
+                          {classItem.title}
+                        </CardTitle>
                       </div>
                     </div>
                   </CardHeader>
@@ -82,10 +79,15 @@ export default function ClassesSection() {
                       {classItem.description}
                     </CardDescription>
                     <div className="space-y-2">
-                      <div className="font-semibold text-gray-900">Destaques:</div>
+                      <div className="font-semibold text-gray-900">
+                        Destaques:
+                      </div>
                       <ul className="space-y-1">
                         {classItem.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-center text-gray-700">
+                          <li
+                            key={idx}
+                            className="flex items-center text-gray-700"
+                          >
                             <span className="w-2 h-2 bg-red-600 rounded-full mr-2" />
                             {feature}
                           </li>
