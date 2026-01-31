@@ -50,7 +50,7 @@ export default function ClassesSection() {
           <div className="w-20 h-1 bg-red-600 mx-auto mt-4" />
         </motion.div>
 
-        <div className="flex justify-center">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
           {classes.map((classItem, index) => {
             const Icon = classItem.icon;
             return (
@@ -59,7 +59,6 @@ export default function ClassesSection() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={isInView ? { opacity: 1, scale: 1 } : {}}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="w-full max-w-2xl"
               >
                 <Card className="h-full hover:shadow-2xl transition-all duration-300 hover:scale-105">
                   <CardHeader>
@@ -102,6 +101,20 @@ export default function ClassesSection() {
               </motion.div>
             );
           })}
+
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div className="relative h-[500px] md:h-[600px] rounded-lg overflow-hidden shadow-2xl">
+              <img
+                src="/lp/foto-classes.webp"
+                alt="Turma OPAM Karate"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
