@@ -1,6 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Facebook, Instagram, Mail, MapPin, Phone, Youtube } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Mail,
+  MapPin,
+  Phone,
+  Youtube,
+} from "lucide-react";
 
 export default function Footer() {
   return (
@@ -23,8 +30,8 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-gray-400 text-sm">
-              Tradição, disciplina e excelência no ensino de Karate. 
-              Formando campeões dentro e fora do tatame.
+              Tradição, disciplina e excelência no ensino de Karate. Formando
+              campeões dentro e fora do tatame.
             </p>
           </div>
 
@@ -33,23 +40,35 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Links Rápidos</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/sobre" className="text-gray-400 hover:text-red-600 transition-colors">
+                <Link
+                  href="/sobre"
+                  className="text-gray-400 hover:text-red-600 transition-colors"
+                >
                   Sobre Nós
                 </Link>
               </li>
               <li>
-                <Link href="/turmas" className="text-gray-400 hover:text-red-600 transition-colors">
+                <Link
+                  href="/turmas"
+                  className="text-gray-400 hover:text-red-600 transition-colors"
+                >
                   Turmas
                 </Link>
               </li>
               <li>
-                <Link href="/horarios" className="text-gray-400 hover:text-red-600 transition-colors">
+                <Link
+                  href="/horarios"
+                  className="text-gray-400 hover:text-red-600 transition-colors"
+                >
                   Horários
                 </Link>
               </li>
               <li>
-                <Link href="/galeria" className="text-gray-400 hover:text-red-600 transition-colors">
-                  Galeria
+                <Link
+                  href="/contato"
+                  className="text-gray-400 hover:text-red-600 transition-colors"
+                >
+                  Contato
                 </Link>
               </li>
             </ul>
@@ -62,20 +81,27 @@ export default function Footer() {
               <li className="flex items-start space-x-2">
                 <MapPin className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
                 <span className="text-gray-400 text-sm">
-                  R. Sabbado D'Ângelo, 1369<br />
-                  Itaquera - São Paulo - SP<br />
+                  R. Sabbado D&apos;Ângelo, 1369
+                  <br />
+                  Itaquera - São Paulo - SP
+                  <br />
                   CEP: 08215-545
                 </span>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="h-5 w-5 text-red-600 flex-shrink-0" />
-                <a href="tel:+5511969392260" className="text-gray-400 text-sm hover:text-red-600 transition-colors">
+                <a
+                  href="tel:+5511969392260"
+                  className="text-gray-400 text-sm hover:text-red-600 transition-colors"
+                >
                   (11) 96939-2260
                 </a>
               </li>
               <li className="flex items-center space-x-2">
                 <Mail className="h-5 w-5 text-red-600 flex-shrink-0" />
-                <span className="text-gray-400 text-sm">contato@opamkarate.com</span>
+                <span className="text-gray-400 text-sm">
+                  contato@opamkarate.com
+                </span>
               </li>
             </ul>
           </div>
@@ -115,7 +141,7 @@ export default function Footer() {
             <p className="text-gray-400 text-sm mt-6">
               Siga-nos nas redes sociais e acompanhe nossas novidades!
             </p>
-            
+
             {/* CODEC Reference */}
             <div className="mt-6 pt-6 border-t border-gray-800">
               <h4 className="font-semibold mb-2">Eventos & Parcerias</h4>
@@ -151,7 +177,10 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-          <p>&copy; {new Date().getFullYear()} OPAM KARATE. Todos os direitos reservados.</p>
+          <p>
+            &copy; {new Date().getFullYear()} OPAM KARATE. Todos os direitos
+            reservados.
+          </p>
         </div>
       </div>
     </footer>
