@@ -153,17 +153,18 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className="overflow-x-hidden">
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
       </head>
-      <body className={`${inter.className} antialiased`}>
+      <body className={`${inter.className} antialiased overflow-x-hidden`}>
         <SmoothScroll />
         <Header />
-        <main className="pt-16 md:pt-20">
+        <main className="pt-16 md:pt-20 overflow-x-hidden">
           {children}
         </main>
         <Footer />
