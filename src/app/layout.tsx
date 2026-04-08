@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import ConditionalLayout from "@/components/ConditionalLayout";
 import SmoothScroll from "@/components/SmoothScroll";
 
 const inter = Inter({
@@ -165,11 +164,7 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased overflow-x-hidden`}>
         <ClerkProvider>
           <SmoothScroll />
-          <Header />
-          <main className="pt-16 md:pt-20 overflow-x-hidden">
-            {children}
-          </main>
-          <Footer />
+          <ConditionalLayout>{children}</ConditionalLayout>
         </ClerkProvider>
       </body>
     </html>

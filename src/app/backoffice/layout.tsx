@@ -73,7 +73,7 @@ export default function BackofficeLayout({ children }: BackofficeLayoutProps) {
               const isActive = pathname === item.href;
 
               return (
-                <Link key={item.href} href={item.href} legacyBehavior passHref>
+                <Link key={item.href} href={item.href}>
                   <SidebarNavItem active={isActive}>
                     <Icon className="h-5 w-5" />
                     <span>{item.label}</span>
