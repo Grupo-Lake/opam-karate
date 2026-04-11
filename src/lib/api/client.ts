@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import type {
   Student,
   StudentListItem,
@@ -8,6 +9,28 @@ import type {
 } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3334";
+
+// Helper para obter headers com autenticação
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  // Em ambiente servidor (Server Components)
+  if (typeof window === "undefined") {
+    try {
+      const { getToken } = await auth();
+      const token = await getToken();
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error("Failed to get auth token:", error);
+    }
+  }
+
+  return headers;
+}
 
 // Helper para tratar erros
 async function handleResponse<T>(response: Response): Promise<T> {
@@ -31,38 +54,45 @@ export const studentsApi = {
     if (params?.page) searchParams.set("page", params.page.toString());
     if (params?.limit) searchParams.set("limit", params.limit.toString());
 
+    const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_URL}/students?${searchParams.toString()}`,
+      { headers }
     );
     return handleResponse<PaginatedStudents>(response);
   },
 
   get: async (id: string): Promise<Student> => {
-    const response = await fetch(`${API_URL}/students/${id}`);
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/students/${id}`, { headers });
     return handleResponse<Student>(response);
   },
 
   create: async (data: CreateStudentDto): Promise<Student> => {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${API_URL}/students`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(data),
     });
     return handleResponse<Student>(response);
   },
 
   update: async (id: string, data: UpdateStudentDto): Promise<Student> => {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${API_URL}/students/${id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(data),
     });
     return handleResponse<Student>(response);
   },
 
   delete: async (id: string): Promise<void> => {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${API_URL}/students/${id}`, {
       method: "DELETE",
+      headers,
     });
     if (!response.ok) {
       const error = await response.json().catch(() => ({
@@ -77,12 +107,14 @@ export const studentsApi = {
 
 export const subscriptionPlansApi = {
   list: async (): Promise<SubscriptionPlan[]> => {
-    const response = await fetch(`${API_URL}/subscription-plans`);
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/subscription-plans`, { headers });
     return handleResponse<SubscriptionPlan[]>(response);
   },
 
   get: async (id: string): Promise<SubscriptionPlan> => {
-    const response = await fetch(`${API_URL}/subscription-plans/${id}`);
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/subscription-plans/${id}`, { headers });
     return handleResponse<SubscriptionPlan>(response);
   },
 };
