@@ -28,7 +28,7 @@ export default async function BackofficePage() {
           <Card className="overflow-hidden transition-shadow hover:shadow-lg">
             <div className="p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <Users className="h-8 w-8 text-red-600" />
                 </div>
                 <div className="ml-5 w-0 flex-1">
@@ -51,7 +51,7 @@ export default async function BackofficePage() {
           <Card className="overflow-hidden transition-shadow hover:shadow-lg">
             <div className="p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <UserCheck className="h-8 w-8 text-blue-600" />
                 </div>
                 <div className="ml-5 w-0 flex-1">
@@ -74,7 +74,7 @@ export default async function BackofficePage() {
           <Card className="overflow-hidden transition-shadow hover:shadow-lg">
             <div className="p-6">
               <div className="flex items-center">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <CreditCard className="h-8 w-8 text-green-600" />
                 </div>
                 <div className="ml-5 w-0 flex-1">

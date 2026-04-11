@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { studentsApi } from "@/lib/api/client";
+import { useEffect, useState, useCallback } from "react";
+import { useApiClient } from "@/lib/api/client-hook";
 import type { StudentListItem } from "@/lib/api/types";
 import {
   Table,
@@ -14,9 +14,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Loader2 } from "lucide-react";
+import { Plus, Search, Loader2, Pencil, Trash2 } from "lucide-react";
+import { StudentFormSheet } from "@/components/backoffice/alunos/StudentFormSheet";
+import { DeleteStudentDialog } from "@/components/backoffice/alunos/DeleteStudentDialog";
 
 export default function AlunosPage() {
+  const api = useApiClient();
   const [students, setStudents] = useState<StudentListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,11 +27,15 @@ export default function AlunosPage() {
   const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const loadStudents = async () => {
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editStudentId, setEditStudentId] = useState<string | null>(null);
+  const [deleteStudent, setDeleteStudent] = useState<StudentListItem | null>(null);
+
+  const loadStudents = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const result = await studentsApi.list({ page, limit: 20 });
+      const result = await api.students.list({ page, limit: 20 });
       setStudents(result.data);
       setTotal(result.total);
     } catch (err) {
@@ -36,11 +43,11 @@ export default function AlunosPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [api.students, page]);
 
   useEffect(() => {
     loadStudents();
-  }, [page]);
+  }, [loadStudents]);
 
   const filteredStudents = students.filter((student) =>
     student.fullName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -72,7 +79,7 @@ export default function AlunosPage() {
             Gerenciar cadastros de alunos ({total} total)
           </p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4" />
           Novo Aluno
         </Button>
@@ -145,9 +152,25 @@ export default function AlunosPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm">
-                          Ver detalhes
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => setEditStudentId(student.id)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                            <span className="sr-only">Editar</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => setDeleteStudent(student)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Excluir</span>
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -179,6 +202,28 @@ export default function AlunosPage() {
           )}
         </>
       )}
+
+      <StudentFormSheet
+        mode="create"
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSuccess={loadStudents}
+      />
+
+      <StudentFormSheet
+        mode="edit"
+        studentId={editStudentId ?? undefined}
+        open={editStudentId !== null}
+        onOpenChange={(open) => { if (!open) setEditStudentId(null); }}
+        onSuccess={loadStudents}
+      />
+
+      <DeleteStudentDialog
+        student={deleteStudent}
+        open={deleteStudent !== null}
+        onOpenChange={(open) => { if (!open) setDeleteStudent(null); }}
+        onSuccess={loadStudents}
+      />
     </div>
   );
 }
