@@ -15,7 +15,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3334";
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let errorMessage = `HTTP ${response.status}`;
-    
+
     try {
       const errorData = await response.json();
       console.error("❌ API Error Response:", {
@@ -23,8 +23,11 @@ async function handleResponse<T>(response: Response): Promise<T> {
         statusText: response.statusText,
         data: errorData,
       });
-      console.error("❌ Error Data (stringified):", JSON.stringify(errorData, null, 2));
-      
+      console.error(
+        "❌ Error Data (stringified):",
+        JSON.stringify(errorData, null, 2),
+      );
+
       // NestJS retorna erros em formato específico
       // Tentar extrair mensagem de erro de diferentes formatos
       if (errorData.message) {
@@ -40,23 +43,23 @@ async function handleResponse<T>(response: Response): Promise<T> {
       } else if (typeof errorData === "string") {
         errorMessage = errorData;
       }
-      
+
       // Se tiver detalhes de validação extras, adicionar
       if (errorData.errors && Array.isArray(errorData.errors)) {
         errorMessage += " | Detalhes: " + errorData.errors.join("; ");
       }
-      
+
       // Se ainda estiver genérico, adicionar o status text
       if (errorMessage === `HTTP ${response.status}` && response.statusText) {
         errorMessage = `${response.statusText} (${response.status})`;
       }
-      
+
       console.error("❌ Mensagem de erro extraída:", errorMessage);
     } catch (parseError) {
       console.error("❌ Failed to parse error response:", parseError);
       errorMessage = `${response.statusText || "Request failed"} (${response.status})`;
     }
-    
+
     throw new Error(errorMessage);
   }
   return response.json();
@@ -88,103 +91,175 @@ export function useApiClient() {
   }, [getToken]);
 
   // Memoriza o retorno para evitar recriações e loops
-  return useMemo(() => ({
-    students: {
-      list: async (params?: {
-        page?: number;
-        limit?: number;
-      }): Promise<PaginatedStudents> => {
-        const searchParams = new URLSearchParams();
-        if (params?.page) searchParams.set("page", params.page.toString());
-        if (params?.limit) searchParams.set("limit", params.limit.toString());
+  return useMemo(
+    () => ({
+      students: {
+        list: async (params?: {
+          page?: number;
+          limit?: number;
+        }): Promise<PaginatedStudents> => {
+          const searchParams = new URLSearchParams();
+          if (params?.page) searchParams.set("page", params.page.toString());
+          if (params?.limit) searchParams.set("limit", params.limit.toString());
 
-        const headers = await getAuthHeaders();
-        const response = await fetch(
-          `${API_URL}/students?${searchParams.toString()}`,
-          { headers }
-        );
-        return handleResponse<PaginatedStudents>(response);
+          const headers = await getAuthHeaders();
+          const response = await fetch(
+            `${API_URL}/students?${searchParams.toString()}`,
+            { headers },
+          );
+          return handleResponse<PaginatedStudents>(response);
+        },
+
+        get: async (id: string): Promise<Student> => {
+          const headers = await getAuthHeaders();
+          const response = await fetch(`${API_URL}/students/${id}`, {
+            headers,
+          });
+          return handleResponse<Student>(response);
+        },
+
+        create: async (data: CreateStudentDto): Promise<Student> => {
+          const headers = await getAuthHeaders();
+          const url = `${API_URL}/students`;
+
+          console.log("🚀 POST Request:", {
+            url,
+            method: "POST",
+            headers: {
+              ...headers,
+              Authorization: (headers as Record<string, string>)[
+                "Authorization"
+              ]
+                ? "Bearer [TOKEN]"
+                : "Missing",
+            },
+            body: data,
+          });
+
+          const response = await fetch(url, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(data),
+          });
+
+          return handleResponse<Student>(response);
+        },
+
+        update: async (
+          id: string,
+          data: UpdateStudentDto,
+        ): Promise<Student> => {
+          const headers = await getAuthHeaders();
+          const url = `${API_URL}/students/${id}`;
+
+          console.log("🔄 PATCH Request:", {
+            url,
+            method: "PATCH",
+            headers: {
+              ...headers,
+              Authorization: (headers as Record<string, string>)[
+                "Authorization"
+              ]
+                ? "Bearer [TOKEN]"
+                : "Missing",
+            },
+            body: data,
+          });
+
+          const response = await fetch(url, {
+            method: "PATCH",
+            headers,
+            body: JSON.stringify(data),
+          });
+
+          return handleResponse<Student>(response);
+        },
+
+        delete: async (id: string): Promise<void> => {
+          const headers = await getAuthHeaders();
+          const response = await fetch(`${API_URL}/students/${id}`, {
+            method: "DELETE",
+            headers,
+          });
+          if (!response.ok) {
+            const error = await response.json().catch(() => ({
+              message: "Failed to delete student",
+            }));
+            throw new Error(error.message);
+          }
+        },
       },
 
-      get: async (id: string): Promise<Student> => {
-        const headers = await getAuthHeaders();
-        const response = await fetch(`${API_URL}/students/${id}`, { headers });
-        return handleResponse<Student>(response);
+      subscriptionPlans: {
+        list: async (): Promise<SubscriptionPlan[]> => {
+          const headers = await getAuthHeaders();
+          const response = await fetch(`${API_URL}/subscription-plans`, {
+            headers,
+          });
+          return handleResponse<SubscriptionPlan[]>(response);
+        },
+
+        get: async (id: string): Promise<SubscriptionPlan> => {
+          const headers = await getAuthHeaders();
+          const response = await fetch(`${API_URL}/subscription-plans/${id}`, {
+            headers,
+          });
+          return handleResponse<SubscriptionPlan>(response);
+        },
       },
 
-      create: async (data: CreateStudentDto): Promise<Student> => {
-        const headers = await getAuthHeaders();
-        const url = `${API_URL}/students`;
-        
-        console.log("🚀 POST Request:", {
-          url,
-          method: "POST",
-          headers: {
-            ...headers,
-            Authorization: (headers as Record<string, string>)["Authorization"] ? "Bearer [TOKEN]" : "Missing",
-          },
-          body: data,
-        });
-        
-        const response = await fetch(url, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(data),
-        });
-        
-        return handleResponse<Student>(response);
-      },
+      guardians: {
+        list: async (): Promise<
+          Array<NonNullable<Student["guardian"]> & { studentId: string }>
+        > => {
+          const headers = await getAuthHeaders();
 
-      update: async (id: string, data: UpdateStudentDto): Promise<Student> => {
-        const headers = await getAuthHeaders();
-        const url = `${API_URL}/students/${id}`;
-        
-        console.log("🔄 PATCH Request:", {
-          url,
-          method: "PATCH",
-          headers: {
-            ...headers,
-            Authorization: (headers as Record<string, string>)["Authorization"] ? "Bearer [TOKEN]" : "Missing",
-          },
-          body: data,
-        });
-        
-        const response = await fetch(url, {
-          method: "PATCH",
-          headers,
-          body: JSON.stringify(data),
-        });
-        
-        return handleResponse<Student>(response);
-      },
+          // Buscar todos os alunos
+          const studentsResponse = await fetch(
+            `${API_URL}/students?limit=1000`,
+            { headers },
+          );
+          const studentsData =
+            await handleResponse<PaginatedStudents>(studentsResponse);
 
-      delete: async (id: string): Promise<void> => {
-        const headers = await getAuthHeaders();
-        const response = await fetch(`${API_URL}/students/${id}`, {
-          method: "DELETE",
-          headers,
-        });
-        if (!response.ok) {
-          const error = await response.json().catch(() => ({
-            message: "Failed to delete student",
-          }));
-          throw new Error(error.message);
-        }
-      },
-    },
+          // Buscar detalhes completos dos alunos que têm guardian
+          const studentsWithGuardians = studentsData.data.filter(
+            (s) => s.guardianId,
+          );
 
-    subscriptionPlans: {
-      list: async (): Promise<SubscriptionPlan[]> => {
-        const headers = await getAuthHeaders();
-        const response = await fetch(`${API_URL}/subscription-plans`, { headers });
-        return handleResponse<SubscriptionPlan[]>(response);
-      },
+          const uniqueGuardians = new Map<
+            string,
+            NonNullable<Student["guardian"]> & { studentId: string }
+          >();
 
-      get: async (id: string): Promise<SubscriptionPlan> => {
-        const headers = await getAuthHeaders();
-        const response = await fetch(`${API_URL}/subscription-plans/${id}`, { headers });
-        return handleResponse<SubscriptionPlan>(response);
+          // Buscar detalhes de cada aluno para pegar os dados do guardian
+          for (const student of studentsWithGuardians) {
+            try {
+              const studentResponse = await fetch(
+                `${API_URL}/students/${student.id}`,
+                { headers },
+              );
+              const fullStudent =
+                await handleResponse<Student>(studentResponse);
+
+              if (
+                fullStudent.guardian &&
+                !uniqueGuardians.has(fullStudent.guardian.id)
+              ) {
+                uniqueGuardians.set(fullStudent.guardian.id, {
+                  ...fullStudent.guardian,
+                  studentId: fullStudent.id,
+                });
+              }
+            } catch (error) {
+              console.error(`Error fetching student ${student.id}:`, error);
+            }
+          }
+
+          return Array.from(uniqueGuardians.values());
+        },
       },
-    },
-  }), [getAuthHeaders]); // Atualiza quando getAuthHeaders mudar (que muda quando getToken mudar)
+    }),
+    [getAuthHeaders],
+  ); // Atualiza quando getAuthHeaders mudar (que muda quando getToken mudar)
 }

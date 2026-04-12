@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { guardiansApi } from "@/lib/api/client";
+import { useEffect, useState, useCallback } from "react";
+import { useApiClient } from "@/lib/api/client-hook";
 import type { Student } from "@/lib/api/types";
 import {
   Table,
@@ -20,16 +20,17 @@ type GuardianWithStudent = NonNullable<Student["guardian"]> & {
 };
 
 export default function ResponsaveisPage() {
+  const api = useApiClient();
   const [guardians, setGuardians] = useState<GuardianWithStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const loadGuardians = async () => {
+  const loadGuardians = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const result = await guardiansApi.list();
+      const result = await api.guardians.list();
       setGuardians(result);
     } catch (err) {
       setError(
@@ -38,29 +39,56 @@ export default function ResponsaveisPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [api.guardians]);
 
   useEffect(() => {
     loadGuardians();
-  }, []);
+  }, [loadGuardians]);
 
   const filteredGuardians = guardians.filter((guardian) =>
     guardian.fullName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("pt-BR");
+    const d = new Date(date);
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(d.getUTCDate()).padStart(2, "0");
+    return `${day}/${month}/${year}`;
   };
 
   const formatPhone = (phone: string) => {
-    // Format: +55XXXXXXXXXXX -> (XX) XXXXX-XXXX
+    // Formatos aceitos:
+    // +55XXXXXXXXXXX -> (XX) XXXXX-XXXX
+    // XXXXXXXXXXX -> (XX) XXXXX-XXXX
+    // XXXXXXXXXX -> (XX) XXXX-XXXX
     const cleaned = phone.replace(/\D/g, "");
+    
+    // Com código do país +55 (13 dígitos)
     if (cleaned.length === 13 && cleaned.startsWith("55")) {
       const ddd = cleaned.substring(2, 4);
       const part1 = cleaned.substring(4, 9);
       const part2 = cleaned.substring(9);
       return `(${ddd}) ${part1}-${part2}`;
     }
+    
+    // Celular 11 dígitos (com 9)
+    if (cleaned.length === 11) {
+      const ddd = cleaned.substring(0, 2);
+      const part1 = cleaned.substring(2, 7);
+      const part2 = cleaned.substring(7);
+      return `(${ddd}) ${part1}-${part2}`;
+    }
+    
+    // Telefone fixo 10 dígitos
+    if (cleaned.length === 10) {
+      const ddd = cleaned.substring(0, 2);
+      const part1 = cleaned.substring(2, 6);
+      const part2 = cleaned.substring(6);
+      return `(${ddd}) ${part1}-${part2}`;
+    }
+    
+    // Retorna o original se não reconhecer o formato
     return phone;
   };
 
