@@ -12,7 +12,7 @@ export default function CTASection() {
 
   return (
     <section ref={ref} className="relative py-20 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-800" />
+      <div className="absolute inset-0 bg-linear-to-r from-red-600 to-red-800" />
 
       {/* Pattern Overlay */}
       <div className="absolute inset-0 opacity-10">
@@ -86,7 +86,7 @@ export default function CTASection() {
                 key={index}
                 className="flex items-center justify-center space-x-2"
               >
-                <CheckCircle className="h-6 w-6 flex-shrink-0" />
+                <CheckCircle className="h-6 w-6 shrink-0" />
                 <span className="text-lg">{item}</span>
               </div>
             ))}
