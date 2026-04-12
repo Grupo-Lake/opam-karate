@@ -1,9 +1,9 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { clerkClient } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3334';
 
-// Public backoffice routes (sign-in, sign-up, access-denied)
 const isPublicBackofficeRoute = createRouteMatcher([
   '/backoffice/sign-in(.*)',
   '/backoffice/sign-up(.*)',
@@ -11,27 +11,53 @@ const isPublicBackofficeRoute = createRouteMatcher([
   '/backoffice/force-signout(.*)',
 ]);
 
-// Protected backoffice routes (everything else under /backoffice)
 const isProtectedRoute = createRouteMatcher(['/backoffice(.*)']);
+
+async function checkWhitelist(email: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_URL}/admin-whitelist/check`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    console.log(`[Middleware] 📡 Whitelist check response: ${response.status}`);
+
+    if (response.status === 403) {
+      console.log(`[Middleware] 🚫 Email not in whitelist`);
+      return false;
+    }
+
+    if (!response.ok) {
+      console.error(`[Middleware] ⚠️  Whitelist check failed: ${response.status}`);
+      return true;
+    }
+
+    console.log(`[Middleware] ✅ Whitelist check passed`);
+    return true;
+  } catch (error) {
+    console.error('[Middleware] ❌ Error checking whitelist:', error);
+    return true;
+  }
+}
 
 export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname;
   
   console.log(`[Middleware] Path: ${pathname}`);
 
-  // Permite rotas públicas de autenticação sem nenhuma verificação
   if (isPublicBackofficeRoute(req)) {
     console.log(`[Middleware] ✅ Public route allowed: ${pathname}`);
     return NextResponse.next();
   }
 
-  // Protege rotas do backoffice que não são públicas
   if (isProtectedRoute(req)) {
     console.log(`[Middleware] 🔒 Protected route, checking auth: ${pathname}`);
     
     const { userId, sessionClaims } = await auth();
 
-    // Redireciona para login se não estiver autenticado
     if (!userId) {
       console.log(`[Middleware] ❌ Not authenticated, redirecting to sign-in`);
       const signInUrl = new URL('/backoffice/sign-in', req.url);
@@ -41,18 +67,53 @@ export default clerkMiddleware(async (auth, req) => {
 
     console.log(`[Middleware] ✅ Authenticated, userId: ${userId}`);
 
-    // Verifica whitelist
-    const email = sessionClaims?.email as string | undefined;
+    const email = 
+      (sessionClaims?.email as string | undefined) ||
+      (sessionClaims?.email_address as string | undefined) ||
+      (sessionClaims?.primaryEmailAddress as string | undefined) ||
+      (sessionClaims?.emailAddresses as string | undefined);
+
+    console.log(`[Middleware] 📧 Session claims:`, {
+      email: sessionClaims?.email,
+      email_address: sessionClaims?.email_address,
+      primaryEmailAddress: sessionClaims?.primaryEmailAddress,
+      emailAddresses: sessionClaims?.emailAddresses,
+      extractedEmail: email,
+    });
 
     if (!email) {
-      console.log(`[Middleware] ⚠️  No email in session claims - LOGOUT FORÇADO`);
+      console.log(`[Middleware] ⚠️  No email found in session claims - trying Clerk API...`);
+      console.log(`[Middleware] Full session claims:`, JSON.stringify(sessionClaims, null, 2));
       
-      // Verifica se já passou por force-signout recentemente (evita loop)
+      try {
+        const client = await clerkClient();
+        const user = await client.users.getUser(userId);
+        const userEmail = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress;
+        
+        console.log(`[Middleware] 📧 Email from Clerk API: ${userEmail}`);
+        
+        if (!userEmail) {
+          console.log(`[Middleware] ❌ No email found even in Clerk API - LOGOUT FORÇADO`);
+        } else {
+          console.log(`[Middleware] ✅ Email found via Clerk API: ${userEmail}, checking whitelist`);
+          
+          const isInWhitelist = await checkWhitelist(userEmail);
+          
+          if (!isInWhitelist) {
+            const deniedUrl = new URL('/backoffice/access-denied', req.url);
+            return NextResponse.redirect(deniedUrl);
+          }
+          
+          return NextResponse.next();
+        }
+      } catch (error) {
+        console.error(`[Middleware] ❌ Error fetching user from Clerk API:`, error);
+      }
+      
       const alreadySigningOut = req.cookies.get('force_signout_in_progress');
       
       if (alreadySigningOut) {
         console.log(`[Middleware] ❌ Already in sign-out process, aborting to prevent loop`);
-        // Se já está tentando fazer logout mas ainda tem sessão, força limpeza via cookie
         const response = NextResponse.redirect(new URL('/backoffice/sign-in', req.url));
         response.cookies.delete('__session');
         response.cookies.delete('__client');
@@ -61,7 +122,6 @@ export default clerkMiddleware(async (auth, req) => {
         return response;
       }
       
-      // Marca que está em processo de sign-out (expira em 10 segundos)
       const forceSignOutUrl = new URL('/backoffice/force-signout', req.url);
       const response = NextResponse.redirect(forceSignOutUrl);
       response.cookies.set('force_signout_in_progress', 'true', { 
@@ -72,7 +132,6 @@ export default clerkMiddleware(async (auth, req) => {
       return response;
     }
   
-    // Se chegou aqui com email, limpa o cookie de force-signout se existir
     const alreadySigningOut = req.cookies.get('force_signout_in_progress');
     if (alreadySigningOut) {
       console.log(`[Middleware] ✅ Session recovered, removing force-signout cookie`);
@@ -80,36 +139,11 @@ export default clerkMiddleware(async (auth, req) => {
 
     console.log(`[Middleware] 📧 Checking whitelist for email: ${email}`);
 
-    try {
-      // Verifica se o email está na whitelist
-      const response = await fetch(`${API_URL}/admin-whitelist/check`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      console.log(`[Middleware] 📡 Whitelist check response: ${response.status}`);
-
-      if (response.status === 403) {
-        // Email não está na whitelist
-        console.log(`[Middleware] 🚫 Email not in whitelist, access denied`);
-        const deniedUrl = new URL('/backoffice/access-denied', req.url);
-        return NextResponse.redirect(deniedUrl);
-      }
-
-      if (!response.ok) {
-        console.error(`[Middleware] ⚠️  Whitelist check failed: ${response.status}`);
-        // Fail-open: permite acesso em caso de erro
-        // Para fail-closed, descomente a linha abaixo:
-        // return NextResponse.redirect(new URL('/backoffice/access-denied', req.url));
-      } else {
-        console.log(`[Middleware] ✅ Whitelist check passed`);
-      }
-    } catch (error) {
-      console.error('[Middleware] ❌ Error checking whitelist:', error);
-      // Fail-open: permite acesso em caso de erro
+    const isInWhitelist = await checkWhitelist(email);
+    
+    if (!isInWhitelist) {
+      const deniedUrl = new URL('/backoffice/access-denied', req.url);
+      return NextResponse.redirect(deniedUrl);
     }
   } else {
     console.log(`[Middleware] ℹ️  Not a backoffice route: ${pathname}`);
@@ -121,9 +155,7 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
     '/(api|trpc)(.*)',
   ],
 };
