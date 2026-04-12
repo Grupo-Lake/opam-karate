@@ -43,7 +43,7 @@ export default function AlunosPage() {
     } finally {
       setLoading(false);
     }
-  }, [api.students, page]);
+  }, [api.students, page]); // api é memorizado, então é seguro incluir
 
   useEffect(() => {
     loadStudents();

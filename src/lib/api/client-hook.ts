@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
+import { useCallback, useMemo } from "react";
 import type {
   Student,
   PaginatedStudents,
@@ -28,7 +29,8 @@ async function handleResponse<T>(response: Response): Promise<T> {
 export function useApiClient() {
   const { getToken } = useAuth();
 
-  const getAuthHeaders = async (): Promise<HeadersInit> => {
+  // Memoiza a função de obter headers para evitar recriações
+  const getAuthHeaders = useCallback(async (): Promise<HeadersInit> => {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
     };
@@ -43,9 +45,10 @@ export function useApiClient() {
     }
 
     return headers;
-  };
+  }, [getToken]);
 
-  return {
+  // Memoriza o retorno para evitar recriações e loops
+  return useMemo(() => ({
     students: {
       list: async (params?: {
         page?: number;
@@ -117,5 +120,5 @@ export function useApiClient() {
         return handleResponse<SubscriptionPlan>(response);
       },
     },
-  };
+  }), [getAuthHeaders]); // Atualiza quando getAuthHeaders mudar (que muda quando getToken mudar)
 }
