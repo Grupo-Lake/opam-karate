@@ -274,7 +274,7 @@ export function StudentFormSheet({
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="subscriptionPlan">Plano</Label>
+                <Label htmlFor="subscriptionPlan">Plano e Período de Cobrança</Label>
                 <select
                   id="subscriptionPlan"
                   value={form.subscriptionPlanId}
@@ -285,12 +285,63 @@ export function StudentFormSheet({
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">Selecione um plano</option>
-                  {plans.map((plan) => (
-                    <option key={plan.id} value={plan.id}>
-                      {plan.name}
-                    </option>
-                  ))}
+                  {plans.flatMap((plan) =>
+                    plan.prices.map((price) => {
+                      const getBillingLabel = (period: "MONTHLY" | "QUARTERLY" | "SEMIANNUAL" | "ANNUAL") => {
+                        const labels = {
+                          MONTHLY: "Mensal",
+                          QUARTERLY: "Trimestral",
+                          SEMIANNUAL: "Semestral",
+                          ANNUAL: "Anual",
+                        };
+                        return labels[period];
+                      };
+                      
+                      const formatPrice = (priceValue: number) => {
+                        return new Intl.NumberFormat("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        }).format(priceValue);
+                      };
+                      
+                      // Usar combinação de planId:priceId para valor único
+                      const optionValue = `${plan.id}:${price.id}`;
+                      
+                      return (
+                        <option key={optionValue} value={plan.id} data-price-id={price.id}>
+                          {plan.name} - {getBillingLabel(price.billingPeriod)} ({formatPrice(price.amount)})
+                        </option>
+                      );
+                    })
+                  )}
                 </select>
+                
+                {/* Detalhes do plano selecionado */}
+                {form.subscriptionPlanId && plans.find(p => p.id === form.subscriptionPlanId) && (
+                  <div className="mt-2 rounded-md bg-gray-50 p-3 dark:bg-gray-900">
+                    {(() => {
+                      const selectedPlan = plans.find(p => p.id === form.subscriptionPlanId);
+                      if (!selectedPlan) return null;
+                      
+                      return (
+                        <div className="space-y-2 text-sm">
+                          {selectedPlan.description && (
+                            <div>
+                              <p className="text-gray-600 dark:text-gray-400">
+                                {selectedPlan.description}
+                              </p>
+                            </div>
+                          )}
+                          <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              💡 Selecione o período de cobrança desejado acima
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
             </div>
 

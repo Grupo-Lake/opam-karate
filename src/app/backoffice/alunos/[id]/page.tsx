@@ -77,11 +77,12 @@ export default function StudentDetailsPage() {
     }).format(price);
   };
 
-  const getBillingPeriodLabel = (period: "MONTHLY" | "QUARTERLY" | "YEARLY") => {
+  const getBillingPeriodLabel = (period: "MONTHLY" | "QUARTERLY" | "SEMIANNUAL" | "ANNUAL") => {
     const labels = {
       MONTHLY: "Mensal",
       QUARTERLY: "Trimestral",
-      YEARLY: "Anual",
+      SEMIANNUAL: "Semestral",
+      ANNUAL: "Anual",
     };
     return labels[period] || "Não especificado";
   };
@@ -285,21 +286,29 @@ export default function StudentDetailsPage() {
                   </p>
                 </div>
               )}
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Período de Cobrança</p>
-                <p className="font-medium text-gray-900 dark:text-white">
-                  {getBillingPeriodLabel(plan.billingPeriod)}
-                </p>
-              </div>
+              {plan.weeklyFrequency && (
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Frequência Semanal</p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {plan.weeklyFrequency} {plan.weeklyFrequency === 1 ? 'treino' : 'treinos'} por semana
+                  </p>
+                </div>
+              )}
               {plan.prices.length > 0 && (
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Valor Atual</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {formatPrice(plan.prices[0].amount)}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    por {(getBillingPeriodLabel(plan.billingPeriod) || "período").toLowerCase()}
-                  </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Opções de Pagamento</p>
+                  <div className="space-y-2">
+                    {plan.prices.map((price) => (
+                      <div key={price.id} className="flex items-center justify-between rounded-md bg-gray-100 p-2 dark:bg-gray-800">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {getBillingPeriodLabel(price.billingPeriod)}
+                        </span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          {formatPrice(price.amount)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
               <div>

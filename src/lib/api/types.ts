@@ -52,7 +52,7 @@ export interface SubscriptionPlan {
   id: string;
   name: string;
   description: string | null;
-  billingPeriod: 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
+  weeklyFrequency: number;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -61,11 +61,12 @@ export interface SubscriptionPlan {
 
 export interface PlanPrice {
   id: string;
+  subscriptionPlanId: string;
   amount: number;
+  billingPeriod: 'MONTHLY' | 'QUARTERLY' | 'SEMIANNUAL' | 'ANNUAL';
   currency: string;
-  effectiveDate: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface CreateStudentDto {

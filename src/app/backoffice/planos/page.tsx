@@ -39,12 +39,13 @@ export default function PlanosPage() {
   };
 
   const getBillingPeriodLabel = (
-    period: "MONTHLY" | "QUARTERLY" | "YEARLY"
+    period: "MONTHLY" | "QUARTERLY" | "SEMIANNUAL" | "ANNUAL"
   ) => {
     const labels = {
       MONTHLY: "Mensal",
       QUARTERLY: "Trimestral",
-      YEARLY: "Anual",
+      SEMIANNUAL: "Semestral",
+      ANNUAL: "Anual",
     };
     return labels[period];
   };
@@ -78,7 +79,6 @@ export default function PlanosPage() {
             </div>
           ) : (
             plans.map((plan) => {
-              const currentPrice = plan.prices[0];
               return (
                 <Card
                   key={plan.id}
@@ -115,32 +115,31 @@ export default function PlanosPage() {
                       </p>
                     )}
 
-                    <div className="mb-4">
-                      <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                        {formatPrice(currentPrice.amount)}
+                    {plan.weeklyFrequency && (
+                      <div className="mb-4">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Frequência semanal
+                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {plan.weeklyFrequency} {plan.weeklyFrequency === 1 ? 'treino' : 'treinos'}/semana
+                        </p>
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {getBillingPeriodLabel(plan.billingPeriod)}
-                      </div>
-                    </div>
+                    )}
 
                     <div className="space-y-2 border-t pt-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 dark:text-gray-400">
-                          Período:
-                        </span>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {getBillingPeriodLabel(plan.billingPeriod)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 dark:text-gray-400">
-                          Preços históricos:
-                        </span>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {plan.prices.length}
-                        </span>
-                      </div>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Opções de Pagamento:
+                      </p>
+                      {plan.prices.map((price) => (
+                        <div key={price.id} className="flex justify-between text-sm">
+                          <span className="text-gray-500 dark:text-gray-400">
+                            {getBillingPeriodLabel(price.billingPeriod)}:
+                          </span>
+                          <span className="font-semibold text-gray-900 dark:text-white">
+                            {formatPrice(price.amount)}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
