@@ -1,13 +1,14 @@
 "use client";
 
-import { UserButton } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useFirebaseAuth } from "@/lib/firebase/hooks";
 import Link from "next/link";
 import {
   Users,
   UserCheck,
   CreditCard,
   LayoutDashboard,
+  LogOut,
 } from "lucide-react";
 import {
   Sidebar,
@@ -16,6 +17,7 @@ import {
   SidebarNav,
   SidebarNavItem,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   {
@@ -46,6 +48,8 @@ interface BackofficeLayoutProps {
 
 export default function BackofficeLayout({ children }: BackofficeLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, signOut } = useFirebaseAuth();
 
   console.log(`[BackofficeLayout] Current pathname: ${pathname}`);
 
@@ -65,6 +69,11 @@ export default function BackofficeLayout({ children }: BackofficeLayoutProps) {
   }
 
   console.log(`[BackofficeLayout] Rendering full layout with sidebar`);
+
+  async function handleSignOut() {
+    await signOut();
+    router.push('/backoffice/sign-in');
+  }
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
@@ -105,19 +114,25 @@ export default function BackofficeLayout({ children }: BackofficeLayoutProps) {
 
         <div className="border-t p-4">
           <div className="flex items-center gap-3">
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "w-10 h-10",
-                },
-              }}
-            />
-            <div className="flex-1 text-sm">
-              <p className="font-medium text-gray-900 dark:text-white">Admin</p>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-white font-semibold">
+              {user?.email?.charAt(0).toUpperCase() || 'A'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                {user?.email || 'Admin'}
+              </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Gerenciar conta
+                Administrador
               </p>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              className="shrink-0"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </Sidebar>
