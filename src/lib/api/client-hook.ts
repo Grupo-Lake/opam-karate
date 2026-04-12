@@ -213,7 +213,7 @@ export function useApiClient() {
           Array<NonNullable<Student["guardian"]> & { studentId: string }>
         > => {
           console.log("📋 Iniciando listagem de guardians...");
-          
+
           try {
             const headers = await getAuthHeaders();
 
@@ -221,30 +221,37 @@ export function useApiClient() {
             console.log("🔍 Buscando alunos com guardians...");
             const studentsUrl = `${API_URL}/students?limit=100`;
             console.log("📡 URL:", studentsUrl);
-            
+
             const studentsResponse = await fetch(studentsUrl, { headers });
-            
+
             if (!studentsResponse.ok) {
               console.error("❌ Erro ao buscar alunos:", {
                 status: studentsResponse.status,
                 statusText: studentsResponse.statusText,
               });
-              
+
               const errorData = await studentsResponse.json().catch(() => null);
               console.error("❌ Detalhes do erro:", errorData);
-              
+
               throw new Error(
-                errorData?.message || 
-                `Erro ao buscar alunos: ${studentsResponse.statusText} (${studentsResponse.status})`
+                errorData?.message ||
+                  `Erro ao buscar alunos: ${studentsResponse.statusText} (${studentsResponse.status})`,
               );
             }
-            
-            const studentsData = await handleResponse<PaginatedStudents>(studentsResponse);
-            console.log(`✅ ${studentsData.data.length} alunos encontrados (total: ${studentsData.total})`);
+
+            const studentsData =
+              await handleResponse<PaginatedStudents>(studentsResponse);
+            console.log(
+              `✅ ${studentsData.data.length} alunos encontrados (total: ${studentsData.total})`,
+            );
 
             // Buscar detalhes completos dos alunos que têm guardian
-            const studentsWithGuardians = studentsData.data.filter((s) => s.guardianId);
-            console.log(`👨‍👩‍👧 ${studentsWithGuardians.length} alunos têm guardians`);
+            const studentsWithGuardians = studentsData.data.filter(
+              (s) => s.guardianId,
+            );
+            console.log(
+              `👨‍👩‍👧 ${studentsWithGuardians.length} alunos têm guardians`,
+            );
 
             if (studentsWithGuardians.length === 0) {
               console.log("⚠️ Nenhum aluno com guardian cadastrado");
@@ -257,17 +264,19 @@ export function useApiClient() {
             >();
 
             // Buscar detalhes de cada aluno para pegar os dados do guardian
-            console.log(`🔄 Buscando detalhes de ${studentsWithGuardians.length} alunos...`);
-            
+            console.log(
+              `🔄 Buscando detalhes de ${studentsWithGuardians.length} alunos...`,
+            );
+
             for (const student of studentsWithGuardians) {
               try {
                 console.log(`  📖 Buscando aluno ${student.id}...`);
-                
+
                 const studentResponse = await fetch(
                   `${API_URL}/students/${student.id}`,
                   { headers },
                 );
-                
+
                 if (!studentResponse.ok) {
                   console.error(`  ❌ Erro ao buscar aluno ${student.id}:`, {
                     status: studentResponse.status,
@@ -275,24 +284,35 @@ export function useApiClient() {
                   });
                   continue;
                 }
-                
-                const fullStudent = await handleResponse<Student>(studentResponse);
 
-                if (fullStudent.guardian && !uniqueGuardians.has(fullStudent.guardian.id)) {
-                  console.log(`  ✅ Guardian encontrado: ${fullStudent.guardian.fullName}`);
+                const fullStudent =
+                  await handleResponse<Student>(studentResponse);
+
+                if (
+                  fullStudent.guardian &&
+                  !uniqueGuardians.has(fullStudent.guardian.id)
+                ) {
+                  console.log(
+                    `  ✅ Guardian encontrado: ${fullStudent.guardian.fullName}`,
+                  );
                   uniqueGuardians.set(fullStudent.guardian.id, {
                     ...fullStudent.guardian,
                     studentId: fullStudent.id,
                   });
                 }
               } catch (error) {
-                console.error(`  ❌ Erro ao processar aluno ${student.id}:`, error);
+                console.error(
+                  `  ❌ Erro ao processar aluno ${student.id}:`,
+                  error,
+                );
               }
             }
 
             const guardiansList = Array.from(uniqueGuardians.values());
-            console.log(`✅ Total de guardians únicos encontrados: ${guardiansList.length}`);
-            
+            console.log(
+              `✅ Total de guardians únicos encontrados: ${guardiansList.length}`,
+            );
+
             return guardiansList;
           } catch (error) {
             console.error("❌ Erro fatal ao listar guardians:", error);

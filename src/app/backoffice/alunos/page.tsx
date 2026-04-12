@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApiClient } from "@/lib/api/client-hook";
 import type { StudentListItem } from "@/lib/api/types";
@@ -21,6 +21,7 @@ import { DeleteStudentDialog } from "@/components/backoffice/alunos/DeleteStuden
 
 export default function AlunosPage() {
   const api = useApiClient();
+  const apiRef = useRef(api);
   const router = useRouter();
   const [students, setStudents] = useState<StudentListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,11 +34,15 @@ export default function AlunosPage() {
   const [editStudentId, setEditStudentId] = useState<string | null>(null);
   const [deleteStudent, setDeleteStudent] = useState<StudentListItem | null>(null);
 
+  useEffect(() => {
+    apiRef.current = api;
+  }, [api]);
+
   const loadStudents = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const result = await api.students.list({ page, limit: 20 });
+      const result = await apiRef.current.students.list({ page, limit: 20 });
       setStudents(result.data);
       setTotal(result.total);
     } catch (err) {
@@ -45,7 +50,7 @@ export default function AlunosPage() {
     } finally {
       setLoading(false);
     }
-  }, [api.students, page]); // api é memorizado, então é seguro incluir
+  }, [page]);
 
   useEffect(() => {
     loadStudents();

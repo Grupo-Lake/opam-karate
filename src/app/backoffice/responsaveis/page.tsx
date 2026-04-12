@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useApiClient } from "@/lib/api/client-hook";
 import type { Student } from "@/lib/api/types";
 import {
@@ -21,17 +21,22 @@ type GuardianWithStudent = NonNullable<Student["guardian"]> & {
 
 export default function ResponsaveisPage() {
   const api = useApiClient();
+  const apiRef = useRef(api);
   const [guardians, setGuardians] = useState<GuardianWithStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    apiRef.current = api;
+  }, [api]);
 
   const loadGuardians = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       console.log("📋 Carregando lista de responsáveis...");
-      const result = await api.guardians.list();
+      const result = await apiRef.current.guardians.list();
       console.log("✅ Responsáveis carregados:", result);
       setGuardians(result);
     } catch (err) {
@@ -43,7 +48,7 @@ export default function ResponsaveisPage() {
     } finally {
       setLoading(false);
     }
-  }, [api.guardians]);
+  }, []);
 
   useEffect(() => {
     loadGuardians();

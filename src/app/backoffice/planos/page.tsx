@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useApiClient } from "@/lib/api/client-hook";
 import type { SubscriptionPlan } from "@/lib/api/types";
 import { Card } from "@/components/ui/card";
@@ -10,22 +10,27 @@ import { Loader2, Check, X } from "lucide-react";
 
 export default function PlanosPage() {
   const api = useApiClient();
+  const apiRef = useRef(api);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    apiRef.current = api;
+  }, [api]);
 
   const loadPlans = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const result = await api.subscriptionPlans.list();
+      const result = await apiRef.current.subscriptionPlans.list();
       setPlans(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar planos");
     } finally {
       setLoading(false);
     }
-  }, [api.subscriptionPlans]);
+  }, []);
 
   useEffect(() => {
     loadPlans();
