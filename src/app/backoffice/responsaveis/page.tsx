@@ -30,12 +30,16 @@ export default function ResponsaveisPage() {
     try {
       setLoading(true);
       setError(null);
+      console.log("📋 Carregando lista de responsáveis...");
       const result = await api.guardians.list();
+      console.log("✅ Responsáveis carregados:", result);
       setGuardians(result);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Erro ao carregar responsáveis"
-      );
+      console.error("❌ Erro ao carregar responsáveis:", err);
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : "Erro desconhecido ao carregar responsáveis";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
