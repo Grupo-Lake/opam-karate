@@ -23,23 +23,38 @@ async function handleResponse<T>(response: Response): Promise<T> {
         statusText: response.statusText,
         data: errorData,
       });
+      console.error("❌ Error Data (stringified):", JSON.stringify(errorData, null, 2));
       
+      // NestJS retorna erros em formato específico
+      // Tentar extrair mensagem de erro de diferentes formatos
       if (errorData.message) {
-        errorMessage = errorData.message;
-      } else if (Array.isArray(errorData.message)) {
-        errorMessage = errorData.message.join(", ");
+        if (Array.isArray(errorData.message)) {
+          // Mensagens de validação do class-validator (array)
+          errorMessage = errorData.message.join("; ");
+        } else if (typeof errorData.message === "string") {
+          // Mensagem simples
+          errorMessage = errorData.message;
+        }
       } else if (errorData.error) {
         errorMessage = errorData.error;
       } else if (typeof errorData === "string") {
         errorMessage = errorData;
       }
       
+      // Se tiver detalhes de validação extras, adicionar
       if (errorData.errors && Array.isArray(errorData.errors)) {
-        errorMessage += ": " + errorData.errors.join(", ");
+        errorMessage += " | Detalhes: " + errorData.errors.join("; ");
       }
+      
+      // Se ainda estiver genérico, adicionar o status text
+      if (errorMessage === `HTTP ${response.status}` && response.statusText) {
+        errorMessage = `${response.statusText} (${response.status})`;
+      }
+      
+      console.error("❌ Mensagem de erro extraída:", errorMessage);
     } catch (parseError) {
       console.error("❌ Failed to parse error response:", parseError);
-      errorMessage = `${response.statusText || errorMessage} (${response.status})`;
+      errorMessage = `${response.statusText || "Request failed"} (${response.status})`;
     }
     
     throw new Error(errorMessage);
