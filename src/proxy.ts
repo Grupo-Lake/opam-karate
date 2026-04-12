@@ -1,24 +1,28 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { clerkClient } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3334';
 
-const isPublicBackofficeRoute = createRouteMatcher([
-  '/backoffice/sign-in(.*)',
-  '/backoffice/sign-up(.*)',
-  '/backoffice/access-denied(.*)',
-  '/backoffice/force-signout(.*)',
-]);
+// Rotas públicas do backoffice (não precisam autenticação)
+const publicBackofficeRoutes = [
+  '/backoffice/sign-in',
+  '/backoffice/access-denied',
+  '/backoffice/force-signout',
+];
 
-const isProtectedRoute = createRouteMatcher(['/backoffice(.*)']);
+// Rotas protegidas do backoffice (precisam autenticação)
+function isProtectedBackofficeRoute(pathname: string): boolean {
+  return pathname.startsWith('/backoffice') && 
+         !publicBackofficeRoutes.some(route => pathname.startsWith(route));
+}
 
-async function checkWhitelist(email: string): Promise<boolean> {
+async function checkWhitelist(email: string, token: string): Promise<boolean> {
   try {
     const response = await fetch(`${API_URL}/admin-whitelist/check`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ email }),
     });
@@ -32,126 +36,139 @@ async function checkWhitelist(email: string): Promise<boolean> {
 
     if (!response.ok) {
       console.error(`[Middleware] ⚠️  Whitelist check failed: ${response.status}`);
-      return true;
+      return true; // Em caso de erro, permitir acesso (fail-open)
     }
 
     console.log(`[Middleware] ✅ Whitelist check passed`);
     return true;
   } catch (error) {
     console.error('[Middleware] ❌ Error checking whitelist:', error);
-    return true;
+    return true; // Em caso de erro, permitir acesso (fail-open)
   }
 }
 
-export default clerkMiddleware(async (auth, req) => {
+async function verifyFirebaseToken(token: string): Promise<{ email?: string; uid: string } | null> {
+  try {
+    const response = await fetch(`${API_URL}/auth/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.log(`[Middleware] ❌ Token verification failed: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('[Middleware] ❌ Error verifying token:', error);
+    return null;
+  }
+}
+
+export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   
   console.log(`[Middleware] Path: ${pathname}`);
 
-  if (isPublicBackofficeRoute(req)) {
-    console.log(`[Middleware] ✅ Public route allowed: ${pathname}`);
+  // Se NÃO for rota de backoffice, aceitar imediatamente
+  if (!isProtectedBackofficeRoute(pathname)) {
+    console.log(`[Middleware] ℹ️  Not a protected backoffice route, allowing: ${pathname}`);
     return NextResponse.next();
   }
 
-  if (isProtectedRoute(req)) {
-    console.log(`[Middleware] 🔒 Protected route, checking auth: ${pathname}`);
+  console.log(`[Middleware] 🔒 Protected backoffice route: ${pathname}`);
+
+  // A partir daqui, são apenas rotas protegidas do backoffice
+  console.log(`[Middleware] 🔒 Protected backoffice route: ${pathname}`);
+
+  // A partir daqui, são apenas rotas protegidas do backoffice
+
+  // Obter token Firebase de múltiplas fontes
+  const firebaseToken = 
+    req.cookies.get('__session')?.value || 
+    req.cookies.get('firebase_token')?.value ||
+    req.headers.get('authorization')?.replace('Bearer ', '');
+
+  if (!firebaseToken) {
+    console.log(`[Middleware] ❌ No Firebase token found, redirecting to sign-in`);
+    const signInUrl = new URL('/backoffice/sign-in', req.url);
+    signInUrl.searchParams.set('redirect_url', req.url);
+    return NextResponse.redirect(signInUrl);
+  }
+
+  console.log(`[Middleware] ✅ Firebase token found, verifying...`);
+
+  // Verificar token com Firebase Admin
+  const userData = await verifyFirebaseToken(firebaseToken);
+
+  if (!userData) {
+    console.log(`[Middleware] ❌ Token verification failed, redirecting to sign-in`);
+    const signInUrl = new URL('/backoffice/sign-in', req.url);
+    signInUrl.searchParams.set('redirect_url', req.url);
+    return NextResponse.redirect(signInUrl);
+  }
+
+  console.log(`[Middleware] ✅ Authenticated, uid: ${userData.uid}`);
+
+  const email = userData.email;
+
+  console.log(`[Middleware] 📧 User data:`, {
+    uid: userData.uid,
+    email: userData.email,
+    extractedEmail: email,
+  });
+
+  if (!email) {
+    console.log(`[Middleware] ⚠️  No email found in token - LOGOUT FORÇADO`);
     
-    const { userId, sessionClaims } = await auth();
-
-    if (!userId) {
-      console.log(`[Middleware] ❌ Not authenticated, redirecting to sign-in`);
-      const signInUrl = new URL('/backoffice/sign-in', req.url);
-      signInUrl.searchParams.set('redirect_url', req.url);
-      return NextResponse.redirect(signInUrl);
-    }
-
-    console.log(`[Middleware] ✅ Authenticated, userId: ${userId}`);
-
-    const email = 
-      (sessionClaims?.email as string | undefined) ||
-      (sessionClaims?.email_address as string | undefined) ||
-      (sessionClaims?.primaryEmailAddress as string | undefined) ||
-      (sessionClaims?.emailAddresses as string | undefined);
-
-    console.log(`[Middleware] 📧 Session claims:`, {
-      email: sessionClaims?.email,
-      email_address: sessionClaims?.email_address,
-      primaryEmailAddress: sessionClaims?.primaryEmailAddress,
-      emailAddresses: sessionClaims?.emailAddresses,
-      extractedEmail: email,
-    });
-
-    if (!email) {
-      console.log(`[Middleware] ⚠️  No email found in session claims - trying Clerk API...`);
-      console.log(`[Middleware] Full session claims:`, JSON.stringify(sessionClaims, null, 2));
-      
-      try {
-        const client = await clerkClient();
-        const user = await client.users.getUser(userId);
-        const userEmail = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress;
-        
-        console.log(`[Middleware] 📧 Email from Clerk API: ${userEmail}`);
-        
-        if (!userEmail) {
-          console.log(`[Middleware] ❌ No email found even in Clerk API - LOGOUT FORÇADO`);
-        } else {
-          console.log(`[Middleware] ✅ Email found via Clerk API: ${userEmail}, checking whitelist`);
-          
-          const isInWhitelist = await checkWhitelist(userEmail);
-          
-          if (!isInWhitelist) {
-            const deniedUrl = new URL('/backoffice/access-denied', req.url);
-            return NextResponse.redirect(deniedUrl);
-          }
-          
-          return NextResponse.next();
-        }
-      } catch (error) {
-        console.error(`[Middleware] ❌ Error fetching user from Clerk API:`, error);
-      }
-      
-      const alreadySigningOut = req.cookies.get('force_signout_in_progress');
-      
-      if (alreadySigningOut) {
-        console.log(`[Middleware] ❌ Already in sign-out process, aborting to prevent loop`);
-        const response = NextResponse.redirect(new URL('/backoffice/sign-in', req.url));
-        response.cookies.delete('__session');
-        response.cookies.delete('__client');
-        response.cookies.delete('__clerk_db_jwt');
-        response.cookies.delete('force_signout_in_progress');
-        return response;
-      }
-      
-      const forceSignOutUrl = new URL('/backoffice/force-signout', req.url);
-      const response = NextResponse.redirect(forceSignOutUrl);
-      response.cookies.set('force_signout_in_progress', 'true', { 
-        maxAge: 10,
-        path: '/' 
-      });
-      
+    // Verificar se já estamos em processo de force-signout (prevenir loop)
+    const alreadySigningOut = req.cookies.get('force_signout_in_progress');
+    
+    if (alreadySigningOut) {
+      console.log(`[Middleware] ❌ Already in sign-out process, aborting to prevent loop`);
+      const response = NextResponse.redirect(new URL('/backoffice/sign-in', req.url));
+      response.cookies.delete('__session');
+      response.cookies.delete('firebase_token');
+      response.cookies.delete('force_signout_in_progress');
       return response;
     }
-  
-    const alreadySigningOut = req.cookies.get('force_signout_in_progress');
-    if (alreadySigningOut) {
-      console.log(`[Middleware] ✅ Session recovered, removing force-signout cookie`);
-    }
-
-    console.log(`[Middleware] 📧 Checking whitelist for email: ${email}`);
-
-    const isInWhitelist = await checkWhitelist(email);
     
-    if (!isInWhitelist) {
-      const deniedUrl = new URL('/backoffice/access-denied', req.url);
-      return NextResponse.redirect(deniedUrl);
-    }
-  } else {
-    console.log(`[Middleware] ℹ️  Not a backoffice route: ${pathname}`);
+    // Redirecionar para página de force-signout
+    const forceSignOutUrl = new URL('/backoffice/force-signout', req.url);
+    const response = NextResponse.redirect(forceSignOutUrl);
+    response.cookies.set('force_signout_in_progress', 'true', { 
+      maxAge: 10,
+      path: '/' 
+    });
+    
+    return response;
+  }
+
+  // Se chegou aqui, temos email - remover cookie de force-signout se existir
+  const alreadySigningOut = req.cookies.get('force_signout_in_progress');
+  if (alreadySigningOut) {
+    console.log(`[Middleware] ✅ Session recovered, removing force-signout cookie`);
+  }
+
+  console.log(`[Middleware] 📧 Checking whitelist for email: ${email}`);
+
+  // Verificar whitelist
+  const isInWhitelist = await checkWhitelist(email, firebaseToken);
+  
+  if (!isInWhitelist) {
+    console.log(`[Middleware] 🚫 Email not in whitelist, redirecting to access-denied`);
+    const deniedUrl = new URL('/backoffice/access-denied', req.url);
+    return NextResponse.redirect(deniedUrl);
   }
 
   console.log(`[Middleware] ➡️  Allowing access to: ${pathname}\n`);
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [
