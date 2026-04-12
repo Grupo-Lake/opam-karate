@@ -46,10 +46,36 @@ export default clerkMiddleware(async (auth, req) => {
 
     if (!email) {
       console.log(`[Middleware] ⚠️  No email in session claims - LOGOUT FORÇADO`);
-      // Estado inconsistente: usuário autenticado sem email
-      // Redireciona para página que força logout
+      
+      // Verifica se já passou por force-signout recentemente (evita loop)
+      const alreadySigningOut = req.cookies.get('force_signout_in_progress');
+      
+      if (alreadySigningOut) {
+        console.log(`[Middleware] ❌ Already in sign-out process, aborting to prevent loop`);
+        // Se já está tentando fazer logout mas ainda tem sessão, força limpeza via cookie
+        const response = NextResponse.redirect(new URL('/backoffice/sign-in', req.url));
+        response.cookies.delete('__session');
+        response.cookies.delete('__client');
+        response.cookies.delete('__clerk_db_jwt');
+        response.cookies.delete('force_signout_in_progress');
+        return response;
+      }
+      
+      // Marca que está em processo de sign-out (expira em 10 segundos)
       const forceSignOutUrl = new URL('/backoffice/force-signout', req.url);
-      return NextResponse.redirect(forceSignOutUrl);
+      const response = NextResponse.redirect(forceSignOutUrl);
+      response.cookies.set('force_signout_in_progress', 'true', { 
+        maxAge: 10,
+        path: '/' 
+      });
+      
+      return response;
+    }
+  
+    // Se chegou aqui com email, limpa o cookie de force-signout se existir
+    const alreadySigningOut = req.cookies.get('force_signout_in_progress');
+    if (alreadySigningOut) {
+      console.log(`[Middleware] ✅ Session recovered, removing force-signout cookie`);
     }
 
     console.log(`[Middleware] 📧 Checking whitelist for email: ${email}`);
