@@ -47,6 +47,25 @@ interface BackofficeLayoutProps {
 export default function BackofficeLayout({ children }: BackofficeLayoutProps) {
   const pathname = usePathname();
 
+  console.log(`[BackofficeLayout] Current pathname: ${pathname}`);
+
+  // Rotas que não devem ter o layout de backoffice
+  const isAuthPage = 
+    pathname?.includes('/sign-in') || 
+    pathname?.includes('/sign-up') ||
+    pathname?.includes('/access-denied') ||
+    pathname?.includes('/force-signout');
+
+  console.log(`[BackofficeLayout] Is auth page: ${isAuthPage}`);
+
+  // Se for página de autenticação, apenas renderiza o children sem layout
+  if (isAuthPage) {
+    console.log(`[BackofficeLayout] Rendering auth page without sidebar`);
+    return <>{children}</>;
+  }
+
+  console.log(`[BackofficeLayout] Rendering full layout with sidebar`);
+
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       <Sidebar>
