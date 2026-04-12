@@ -57,7 +57,7 @@ async function verifyFirebaseToken(token: string): Promise<boolean> {
   }
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   try {
     const pathname = req.nextUrl.pathname;
 
