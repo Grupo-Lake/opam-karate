@@ -28,14 +28,16 @@ export default function SignUpPage() {
         )}
 
         <SignUp
+          path="/backoffice/sign-up"
+          routing="path"
+          signInUrl="/backoffice/sign-in"
+          forceRedirectUrl="/backoffice"
           appearance={{
             elements: {
               rootBox: "mx-auto",
               card: "shadow-xl",
             },
           }}
-          fallbackRedirectUrl="/backoffice"
-          signInUrl="/backoffice/sign-in"
         />
 
         <div className="mt-6 rounded-lg bg-blue-50 p-4 text-sm text-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
