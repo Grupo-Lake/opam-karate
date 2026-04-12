@@ -18,11 +18,10 @@ export default function ForceSignOutPage() {
       console.log("[ForceSignOut] Logging out user due to inconsistent state");
       
       try {
-        // Fazer logout via Firebase
+        // Fazer logout via Firebase (também limpa o cookie __session via /api/sign-out)
         await signOut();
         
-        // Limpar cookies Firebase
-        document.cookie = '__session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        // Limpar outros cookies não-HttpOnly se existirem
         document.cookie = 'firebase_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         document.cookie = 'force_signout_in_progress=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         
@@ -36,14 +35,9 @@ export default function ForceSignOutPage() {
         console.error("[ForceSignOut] Error during logout:", error);
         setStatus('error');
         
-        // Fallback: força recarregamento após limpar cookies manualmente
-        setTimeout(() => {
-          // Limpa todos os cookies manualmente
-          document.cookie.split(";").forEach((c) => {
-            document.cookie = c
-              .replace(/^ +/, "")
-              .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-          });
+        // Fallback: limpa cookie HttpOnly via API e recarrega a página
+        setTimeout(async () => {
+          await fetch('/api/sign-out', { method: 'POST' }).catch(() => {});
           
           // Força reload completo da página
           window.location.href = '/backoffice/sign-in';

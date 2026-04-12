@@ -40,7 +40,13 @@ export default function SignInPage() {
         throw new Error('Erro ao verificar autorização. Tente novamente.');
       }
 
-      // O cookie __session já foi definido por signInWithGoogle().
+      const data = await response.json();
+      if (!data.authorized) {
+        router.push('/backoffice/access-denied');
+        return;
+      }
+
+      // O cookie __session HttpOnly foi definido pelo servidor em /api/check-whitelist.
       // Navegar para o backoffice — o middleware irá verificar o cookie.
       router.push('/backoffice');
     } catch (err) {

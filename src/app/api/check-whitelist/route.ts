@@ -14,23 +14,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (!token) {
+      return NextResponse.json(
+        { authorized: false, message: 'Token não fornecido' },
+        { status: 400 }
+      );
     }
 
-    const response = await fetch(`${API_URL}/api/admin-whitelist/check`, {
+    const response = await fetch(`${API_URL}/admin-whitelist/check`, {
       method: 'POST',
-      headers,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
       body: JSON.stringify({ email }),
     });
 
     if (response.status === 200) {
       const data = await response.json();
-      return NextResponse.json({ authorized: data.authorized });
+
+      if (!data.authorized) {
+        return NextResponse.json(
+          { authorized: false, message: 'Acesso não autorizado' },
+          { status: 403 }
+        );
+      }
+
+      // Definir cookie HttpOnly no servidor para evitar acesso via XSS
+      const res = NextResponse.json({ authorized: true });
+      res.cookies.set('__session', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 3600,
+      });
+      return res;
     }
 
     if (response.status === 403) {
