@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { subscriptionPlansApi } from "@/lib/api/client";
+import { useEffect, useState, useCallback } from "react";
+import { useApiClient } from "@/lib/api/client-hook";
 import type { SubscriptionPlan } from "@/lib/api/types";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,26 +9,27 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Check, X } from "lucide-react";
 
 export default function PlanosPage() {
+  const api = useApiClient();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadPlans = async () => {
+  const loadPlans = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const result = await subscriptionPlansApi.list();
+      const result = await api.subscriptionPlans.list();
       setPlans(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar planos");
     } finally {
       setLoading(false);
     }
-  };
+  }, [api.subscriptionPlans]);
 
   useEffect(() => {
     loadPlans();
-  }, []);
+  }, [loadPlans]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("pt-BR", {
