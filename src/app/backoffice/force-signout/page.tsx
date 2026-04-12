@@ -37,7 +37,9 @@ export default function ForceSignOutPage() {
         
         // Fallback: limpa cookie HttpOnly via API e recarrega a página
         setTimeout(async () => {
-          await fetch('/api/sign-out', { method: 'POST' }).catch(() => {});
+          await fetch('/api/sign-out', { method: 'POST' }).catch((e) => {
+            console.error('[ForceSignOut] Failed to call /api/sign-out:', e);
+          });
           
           // Força reload completo da página
           window.location.href = '/backoffice/sign-in';

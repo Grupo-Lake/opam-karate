@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 
-const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'karate-opam';
+const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+if (!FIREBASE_PROJECT_ID) {
+  throw new Error('NEXT_PUBLIC_FIREBASE_PROJECT_ID environment variable is not set');
+}
 
 const JWKS_URI = new URL(
   'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'
