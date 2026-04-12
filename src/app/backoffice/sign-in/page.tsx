@@ -6,74 +6,44 @@ import { signInWithGoogle } from '@/lib/firebase/config';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3334';
-
 export default function SignInPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  async function checkWhitelist(email: string, token: string): Promise<boolean> {
-    try {
-      console.log('🌐 Making whitelist API call to:', `${API_URL}/admin-whitelist/check`);
-      const response = await fetch(`${API_URL}/admin-whitelist/check`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      console.log('📊 Whitelist API response status:', response.status);
-      const responseData = await response.text();
-      console.log('📄 Response data:', responseData);
-      
-      return response.ok;
-    } catch (error) {
-      console.error('❌ Whitelist check failed:', error);
-      return false;
-    }
-  }
 
   async function handleGoogleSignIn() {
     setLoading(true);
     setError(null);
 
     try {
-      console.log('🔐 Starting Google Sign-In...');
       const user = await signInWithGoogle();
-      console.log('✅ Firebase authentication successful:', user.email);
-      
+
       if (!user.email) {
-        throw new Error('Email não encontrado');
+        throw new Error('Email não encontrado na conta Google');
       }
 
-      // Verificar whitelist
-      console.log('📋 Checking whitelist for:', user.email);
       const token = await user.getIdToken();
-      console.log('🎫 Token obtained, length:', token.length);
-      
-      const isWhitelisted = await checkWhitelist(user.email, token);
-      console.log('📡 Whitelist check result:', isWhitelisted);
 
-      if (!isWhitelisted) {
-        console.log('🚫 User not in whitelist, redirecting to access-denied');
+      // Verifica whitelist via Route Handler do Next.js (sem CORS, sem chamada direta ao backend)
+      const response = await fetch('/api/check-whitelist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, token }),
+      });
+
+      if (response.status === 403) {
         router.push('/backoffice/access-denied');
         return;
       }
 
-      console.log('✅ User is whitelisted!');
-      console.log('🍪 Cookie should be set with token');
-      
-      // Aguardar um pouco para garantir que o cookie foi salvo
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      console.log('🚀 Redirecting to /backoffice');
-      // Usar window.location para forçar navegação completa
-      window.location.href = '/backoffice';
+      if (!response.ok) {
+        throw new Error('Erro ao verificar autorização. Tente novamente.');
+      }
+
+      // O cookie __session já foi definido por signInWithGoogle().
+      // Navegar para o backoffice — o middleware irá verificar o cookie.
+      router.push('/backoffice');
     } catch (err) {
-      console.error('❌ Sign in error:', err);
       setError(err instanceof Error ? err.message : 'Erro ao fazer login');
     } finally {
       setLoading(false);
