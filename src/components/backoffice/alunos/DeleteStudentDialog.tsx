@@ -11,7 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { studentsApi } from "@/lib/api/client"
+import { useApiClient } from "@/lib/api/client-hook"
 import type { StudentListItem } from "@/lib/api/types"
 
 interface DeleteStudentDialogProps {
@@ -27,6 +27,7 @@ export function DeleteStudentDialog({
   onOpenChange,
   onSuccess,
 }: DeleteStudentDialogProps) {
+  const api = useApiClient()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -35,7 +36,7 @@ export function DeleteStudentDialog({
     setLoading(true)
     setError(null)
     try {
-      await studentsApi.delete(student.id)
+      await api.students.delete(student.id)
       onSuccess()
       onOpenChange(false)
     } catch (err) {

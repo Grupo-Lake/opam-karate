@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { studentsApi, subscriptionPlansApi } from "@/lib/api/client"
+import { useApiClient } from "@/lib/api/client-hook"
 import type { SubscriptionPlan } from "@/lib/api/types"
 
 interface StudentFormSheetProps {
@@ -65,6 +65,7 @@ export function StudentFormSheet({
   onOpenChange,
   onSuccess,
 }: StudentFormSheetProps) {
+  const api = useApiClient()
   const [form, setForm] = useState<FormData>(emptyForm)
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [loading, setLoading] = useState(false)
@@ -76,8 +77,8 @@ export function StudentFormSheet({
 
   useEffect(() => {
     if (!open) return
-    subscriptionPlansApi.list().then(setPlans).catch(console.error)
-  }, [open])
+    api.subscriptionPlans.list().then(setPlans).catch(console.error)
+  }, [open, api.subscriptionPlans])
 
   useEffect(() => {
     if (!open) return
@@ -85,7 +86,7 @@ export function StudentFormSheet({
     if (mode === "edit" && studentId) {
       setFetchingStudent(true)
       setError(null)
-      studentsApi
+      api.students
         .get(studentId)
         .then((student) => {
           setForm({
@@ -118,7 +119,7 @@ export function StudentFormSheet({
       setShowGuardian(false)
       setError(null)
     }
-  }, [open, mode, studentId])
+  }, [open, mode, studentId, api.students])
 
   useEffect(() => {
     if (isMinor) setShowGuardian(true)
@@ -159,7 +160,7 @@ export function StudentFormSheet({
           : null
 
       if (mode === "create") {
-        await studentsApi.create({
+        await api.students.create({
           fullName: form.fullName,
           birthDate: form.birthDate,
           termsAccepted: true,
@@ -168,7 +169,7 @@ export function StudentFormSheet({
           guardian: guardianData,
         })
       } else {
-        await studentsApi.update(studentId!, {
+        await api.students.update(studentId!, {
           fullName: form.fullName,
           birthDate: form.birthDate,
           subscriptionPlanId: form.subscriptionPlanId,
