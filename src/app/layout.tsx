@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
+import { AuthProvider } from "@/lib/firebase/auth-context";
 import "./globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -162,15 +162,10 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
       </head>
       <body className={`${inter.className} antialiased overflow-x-hidden`}>
-        <ClerkProvider
-          signInFallbackRedirectUrl="/backoffice"
-          signUpFallbackRedirectUrl="/backoffice"
-          signInForceRedirectUrl={undefined}
-          signUpForceRedirectUrl={undefined}
-        >
+        <AuthProvider>
           <SmoothScroll />
           <ConditionalLayout>{children}</ConditionalLayout>
-        </ClerkProvider>
+        </AuthProvider>
       </body>
     </html>
   );
