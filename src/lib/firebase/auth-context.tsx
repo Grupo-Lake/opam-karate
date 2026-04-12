@@ -24,22 +24,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
-      async (user) => {
+      (user) => {
         setUser(user);
         setLoading(false);
-        
-        // Salvar token em cookie quando o usuário estiver autenticado
-        if (user) {
-          try {
-            const idToken = await user.getIdToken();
-            document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Lax`;
-          } catch (err) {
-            console.error('Failed to save token to cookie:', err);
-          }
-        } else {
-          // Limpar cookie quando não houver usuário
-          document.cookie = '__session=; path=/; max-age=0';
-        }
+        // O cookie de sessão é gerenciado exclusivamente pelo fluxo de login (sign-in)
+        // e pelo sign-out. Não manipulamos cookies aqui para evitar race conditions
+        // onde o Firebase ancora o estado como null durante a inicialização e
+        // apagaria um cookie válido recém-criado.
       },
       (error) => {
         setError(error);
