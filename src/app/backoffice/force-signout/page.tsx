@@ -1,15 +1,16 @@
 "use client";
 
-import { useClerk } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { signOut } from "@/lib/firebase/config";
 
 /**
- * Página para forçar logout do Clerk
+ * Página para forçar logout do Firebase
  * Usada quando detecta estado inconsistente (autenticado sem email)
  */
 export default function ForceSignOutPage() {
-  const { signOut } = useClerk();
+  const router = useRouter();
   const [status, setStatus] = useState<'logging-out' | 'redirecting' | 'error'>('logging-out');
 
   useEffect(() => {
@@ -17,16 +18,27 @@ export default function ForceSignOutPage() {
       console.log("[ForceSignOut] Logging out user due to inconsistent state");
       
       try {
-        // Tenta fazer logout via Clerk
-        await signOut({ redirectUrl: '/backoffice/sign-in' });
+        // Fazer logout via Firebase
+        await signOut();
+        
+        // Limpar cookies Firebase
+        document.cookie = '__session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'firebase_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'force_signout_in_progress=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        
         setStatus('redirecting');
+        
+        // Redirecionar após pequeno delay
+        setTimeout(() => {
+          router.push('/backoffice/sign-in');
+        }, 500);
       } catch (error) {
         console.error("[ForceSignOut] Error during logout:", error);
         setStatus('error');
         
         // Fallback: força recarregamento após limpar cookies manualmente
         setTimeout(() => {
-          // Limpa todos os cookies do Clerk manualmente
+          // Limpa todos os cookies manualmente
           document.cookie.split(";").forEach((c) => {
             document.cookie = c
               .replace(/^ +/, "")
@@ -40,7 +52,7 @@ export default function ForceSignOutPage() {
     };
 
     performSignOut();
-  }, [signOut]);
+  }, [router]);
 
   if (status === 'error') {
     return (
