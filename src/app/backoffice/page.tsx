@@ -1,15 +1,9 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Users, UserCheck, CreditCard } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 export default async function BackofficePage() {
-  const { userId } = await auth();
-
-  if (!userId) {
-    redirect("/backoffice/sign-in");
-  }
 
   return (
     <div>
