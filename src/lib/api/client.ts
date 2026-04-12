@@ -1,7 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
+import { getIdToken } from "@/lib/firebase/config";
 import type {
   Student,
-  StudentListItem,
   PaginatedStudents,
   SubscriptionPlan,
   CreateStudentDto,
@@ -16,17 +15,14 @@ async function getAuthHeaders(): Promise<HeadersInit> {
     "Content-Type": "application/json",
   };
 
-  // Em ambiente servidor (Server Components)
-  if (typeof window === "undefined") {
-    try {
-      const { getToken } = await auth();
-      const token = await getToken();
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-    } catch (error) {
-      console.error("Failed to get auth token:", error);
+  // Obter token Firebase
+  try {
+    const token = await getIdToken();
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
+  } catch (error) {
+    console.error("Failed to get Firebase token:", error);
   }
 
   return headers;
@@ -57,7 +53,7 @@ export const studentsApi = {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_URL}/students?${searchParams.toString()}`,
-      { headers }
+      { headers },
     );
     return handleResponse<PaginatedStudents>(response);
   },
@@ -114,7 +110,9 @@ export const subscriptionPlansApi = {
 
   get: async (id: string): Promise<SubscriptionPlan> => {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_URL}/subscription-plans/${id}`, { headers });
+    const response = await fetch(`${API_URL}/subscription-plans/${id}`, {
+      headers,
+    });
     return handleResponse<SubscriptionPlan>(response);
   },
 };
