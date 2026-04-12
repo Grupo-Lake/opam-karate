@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
+import { useFirebaseAuth } from "@/lib/firebase/hooks";
 import { useCallback, useMemo } from "react";
 import type {
   Student,
@@ -67,10 +67,10 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 /**
  * Hook para usar a API em Client Components
- * Injeta automaticamente o token de autenticação do Clerk
+ * Injeta automaticamente o token de autenticação do Firebase
  */
 export function useApiClient() {
-  const { getToken } = useAuth();
+  const { getToken } = useFirebaseAuth();
 
   // Memoiza a função de obter headers para evitar recriações
   const getAuthHeaders = useCallback(async (): Promise<HeadersInit> => {

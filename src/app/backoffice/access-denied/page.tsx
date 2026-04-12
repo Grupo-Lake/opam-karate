@@ -1,10 +1,18 @@
 "use client";
 
-import { SignOutButton } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { useFirebaseAuth } from "@/lib/firebase/hooks";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, LogOut } from "lucide-react";
 
 export default function AccessDeniedPage() {
+  const router = useRouter();
+  const { signOut } = useFirebaseAuth();
+
+  async function handleSignOut() {
+    await signOut();
+    router.push('/backoffice/sign-in');
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
@@ -25,12 +33,10 @@ export default function AccessDeniedPage() {
           Entre em contato com o administrador do sistema para solicitar acesso.
         </p>
 
-        <SignOutButton>
-          <Button variant="outline" className="w-full">
-            <LogOut className="mr-2 h-4 w-4" />
-            Fazer Logout
-          </Button>
-        </SignOutButton>
+        <Button variant="outline" className="w-full" onClick={handleSignOut}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Fazer Logout
+        </Button>
       </div>
     </div>
   );

@@ -1,12 +1,9 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3334';
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth();
-    
     const body = await req.json();
     const { email } = body;
 

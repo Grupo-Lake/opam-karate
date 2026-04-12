@@ -27,22 +27,22 @@ async function checkWhitelist(email: string, token: string): Promise<boolean> {
       body: JSON.stringify({ email }),
     });
 
-    console.log(`[Middleware] 📡 Whitelist check response: ${response.status}`);
+    console.log(`[Proxy] 📡 Whitelist check response: ${response.status}`);
 
     if (response.status === 403) {
-      console.log(`[Middleware] 🚫 Email not in whitelist`);
+      console.log(`[Proxy] 🚫 Email not in whitelist`);
       return false;
     }
 
     if (!response.ok) {
-      console.error(`[Middleware] ⚠️  Whitelist check failed: ${response.status}`);
+      console.error(`[Proxy] ⚠️  Whitelist check failed: ${response.status}`);
       return true; // Em caso de erro, permitir acesso (fail-open)
     }
 
-    console.log(`[Middleware] ✅ Whitelist check passed`);
+    console.log(`[Proxy] ✅ Whitelist check passed`);
     return true;
   } catch (error) {
-    console.error('[Middleware] ❌ Error checking whitelist:', error);
+    console.error('[Proxy] ❌ Error checking whitelist:', error);
     return true; // Em caso de erro, permitir acesso (fail-open)
   }
 }
@@ -58,33 +58,33 @@ async function verifyFirebaseToken(token: string): Promise<{ email?: string; uid
     });
 
     if (!response.ok) {
-      console.log(`[Middleware] ❌ Token verification failed: ${response.status}`);
+      console.log(`[Proxy] ❌ Token verification failed: ${response.status}`);
       return null;
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('[Middleware] ❌ Error verifying token:', error);
+    console.error('[Proxy] ❌ Error verifying token:', error);
     return null;
   }
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   
-  console.log(`[Middleware] Path: ${pathname}`);
+  console.log(`[Proxy] Path: ${pathname}`);
 
   // Se NÃO for rota de backoffice, aceitar imediatamente
   if (!isProtectedBackofficeRoute(pathname)) {
-    console.log(`[Middleware] ℹ️  Not a protected backoffice route, allowing: ${pathname}`);
+    console.log(`[Proxy] ℹ️  Not a protected backoffice route, allowing: ${pathname}`);
     return NextResponse.next();
   }
 
-  console.log(`[Middleware] 🔒 Protected backoffice route: ${pathname}`);
+  console.log(`[Proxy] 🔒 Protected backoffice route: ${pathname}`);
 
   // A partir daqui, são apenas rotas protegidas do backoffice
-  console.log(`[Middleware] 🔒 Protected backoffice route: ${pathname}`);
+  console.log(`[Proxy] 🔒 Protected backoffice route: ${pathname}`);
 
   // A partir daqui, são apenas rotas protegidas do backoffice
 
@@ -95,42 +95,42 @@ export async function middleware(req: NextRequest) {
     req.headers.get('authorization')?.replace('Bearer ', '');
 
   if (!firebaseToken) {
-    console.log(`[Middleware] ❌ No Firebase token found, redirecting to sign-in`);
+    console.log(`[Proxy] ❌ No Firebase token found, redirecting to sign-in`);
     const signInUrl = new URL('/backoffice/sign-in', req.url);
     signInUrl.searchParams.set('redirect_url', req.url);
     return NextResponse.redirect(signInUrl);
   }
 
-  console.log(`[Middleware] ✅ Firebase token found, verifying...`);
+  console.log(`[Proxy] ✅ Firebase token found, verifying...`);
 
   // Verificar token com Firebase Admin
   const userData = await verifyFirebaseToken(firebaseToken);
 
   if (!userData) {
-    console.log(`[Middleware] ❌ Token verification failed, redirecting to sign-in`);
+    console.log(`[Proxy] ❌ Token verification failed, redirecting to sign-in`);
     const signInUrl = new URL('/backoffice/sign-in', req.url);
     signInUrl.searchParams.set('redirect_url', req.url);
     return NextResponse.redirect(signInUrl);
   }
 
-  console.log(`[Middleware] ✅ Authenticated, uid: ${userData.uid}`);
+  console.log(`[Proxy] ✅ Authenticated, uid: ${userData.uid}`);
 
   const email = userData.email;
 
-  console.log(`[Middleware] 📧 User data:`, {
+  console.log(`[Proxy] 📧 User data:`, {
     uid: userData.uid,
     email: userData.email,
     extractedEmail: email,
   });
 
   if (!email) {
-    console.log(`[Middleware] ⚠️  No email found in token - LOGOUT FORÇADO`);
+    console.log(`[Proxy] ⚠️  No email found in token - LOGOUT FORÇADO`);
     
     // Verificar se já estamos em processo de force-signout (prevenir loop)
     const alreadySigningOut = req.cookies.get('force_signout_in_progress');
     
     if (alreadySigningOut) {
-      console.log(`[Middleware] ❌ Already in sign-out process, aborting to prevent loop`);
+      console.log(`[Proxy] ❌ Already in sign-out process, aborting to prevent loop`);
       const response = NextResponse.redirect(new URL('/backoffice/sign-in', req.url));
       response.cookies.delete('__session');
       response.cookies.delete('firebase_token');
@@ -152,21 +152,21 @@ export async function middleware(req: NextRequest) {
   // Se chegou aqui, temos email - remover cookie de force-signout se existir
   const alreadySigningOut = req.cookies.get('force_signout_in_progress');
   if (alreadySigningOut) {
-    console.log(`[Middleware] ✅ Session recovered, removing force-signout cookie`);
+    console.log(`[Proxy] ✅ Session recovered, removing force-signout cookie`);
   }
 
-  console.log(`[Middleware] 📧 Checking whitelist for email: ${email}`);
+  console.log(`[Proxy] 📧 Checking whitelist for email: ${email}`);
 
   // Verificar whitelist
   const isInWhitelist = await checkWhitelist(email, firebaseToken);
   
   if (!isInWhitelist) {
-    console.log(`[Middleware] 🚫 Email not in whitelist, redirecting to access-denied`);
+    console.log(`[Proxy] 🚫 Email not in whitelist, redirecting to access-denied`);
     const deniedUrl = new URL('/backoffice/access-denied', req.url);
     return NextResponse.redirect(deniedUrl);
   }
 
-  console.log(`[Middleware] ➡️  Allowing access to: ${pathname}\n`);
+  console.log(`[Proxy] ➡️  Allowing access to: ${pathname}\n`);
   return NextResponse.next();
 }
 
@@ -176,3 +176,4 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 };
+
