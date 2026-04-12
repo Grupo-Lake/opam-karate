@@ -18,6 +18,9 @@ function isProtectedBackofficeRoute(pathname: string): boolean {
 
 async function checkWhitelist(email: string, token: string): Promise<boolean> {
   try {
+    console.log(`[Proxy] 🔍 Checking whitelist for: ${email}`);
+    console.log(`[Proxy] 🎫 Token (first 20 chars): ${token.substring(0, 20)}...`);
+    
     const response = await fetch(`${API_URL}/admin-whitelist/check`, {
       method: 'POST',
       headers: {
@@ -28,6 +31,10 @@ async function checkWhitelist(email: string, token: string): Promise<boolean> {
     });
 
     console.log(`[Proxy] 📡 Whitelist check response: ${response.status}`);
+    
+    // Log do body da resposta
+    const responseText = await response.text();
+    console.log(`[Proxy] 📄 Response body: ${responseText}`);
 
     if (response.status === 403) {
       console.log(`[Proxy] 🚫 Email not in whitelist`);
@@ -93,6 +100,12 @@ export async function proxy(req: NextRequest) {
     req.cookies.get('__session')?.value || 
     req.cookies.get('firebase_token')?.value ||
     req.headers.get('authorization')?.replace('Bearer ', '');
+
+  console.log(`[Proxy] 🍪 Cookies available:`, {
+    __session: req.cookies.get('__session') ? 'YES' : 'NO',
+    firebase_token: req.cookies.get('firebase_token') ? 'YES' : 'NO',
+  });
+  console.log(`[Proxy] 📋 Authorization header:`, req.headers.get('authorization') ? 'YES' : 'NO');
 
   if (!firebaseToken) {
     console.log(`[Proxy] ❌ No Firebase token found, redirecting to sign-in`);
