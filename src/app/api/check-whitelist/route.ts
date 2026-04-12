@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3334';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email } = body;
+    const { email, token } = body;
 
     if (!email) {
       return NextResponse.json(
@@ -14,11 +14,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const response = await fetch(`${API_URL}/admin-whitelist/check`, {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_URL}/api/admin-whitelist/check`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ email }),
     });
 
@@ -28,9 +34,8 @@ export async function POST(req: NextRequest) {
     }
 
     if (response.status === 403) {
-      const data = await response.json();
       return NextResponse.json(
-        { authorized: false, message: data.message },
+        { authorized: false, message: 'Acesso não autorizado' },
         { status: 403 }
       );
     }
@@ -40,7 +45,7 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   } catch (error) {
-    console.error('Error checking whitelist:', error);
+    console.error('[check-whitelist] Erro:', error);
     return NextResponse.json(
       { authorized: false, message: 'Erro ao verificar autorização' },
       { status: 500 }
