@@ -48,11 +48,19 @@ export default clerkMiddleware(async (auth, req) => {
   
   console.log(`[Middleware] Path: ${pathname}`);
 
-  if (isPublicBackofficeRoute(req)) {
-    console.log(`[Middleware] ✅ Public route allowed: ${pathname}`);
+  // Se NÃO for rota de backoffice, aceitar imediatamente sem verificações
+  if (!isProtectedRoute(req)) {
+    console.log(`[Middleware] ℹ️  Not a backoffice route, allowing: ${pathname}`);
     return NextResponse.next();
   }
 
+  // Rotas públicas do backoffice (sign-in, sign-up, etc)
+  if (isPublicBackofficeRoute(req)) {
+    console.log(`[Middleware] ✅ Public backoffice route allowed: ${pathname}`);
+    return NextResponse.next();
+  }
+
+  // A partir daqui, são apenas rotas protegidas do backoffice
   if (isProtectedRoute(req)) {
     console.log(`[Middleware] 🔒 Protected route, checking auth: ${pathname}`);
     
@@ -145,8 +153,6 @@ export default clerkMiddleware(async (auth, req) => {
       const deniedUrl = new URL('/backoffice/access-denied', req.url);
       return NextResponse.redirect(deniedUrl);
     }
-  } else {
-    console.log(`[Middleware] ℹ️  Not a backoffice route: ${pathname}`);
   }
 
   console.log(`[Middleware] ➡️  Allowing access to: ${pathname}\n`);
