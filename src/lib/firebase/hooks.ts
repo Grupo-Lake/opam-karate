@@ -1,13 +1,17 @@
 'use client';
 
 import { useAuth } from './auth-context';
-import { getIdToken } from './config';
+import { getIdToken, signOut as firebaseSignOut } from './config';
 
 export function useFirebaseAuth() {
   const { user, loading, error } = useAuth();
 
   async function getToken(): Promise<string | null> {
     return getIdToken();
+  }
+
+  async function signOut(): Promise<void> {
+    return firebaseSignOut();
   }
 
   return {
@@ -17,5 +21,6 @@ export function useFirebaseAuth() {
     isAuthenticated: !!user,
     isLoading: loading,
     getToken,
+    signOut,
   };
 }
