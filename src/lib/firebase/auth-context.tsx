@@ -24,9 +24,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
       auth,
-      (user) => {
+      async (user) => {
         setUser(user);
         setLoading(false);
+        
+        // Salvar token em cookie quando o usuário estiver autenticado
+        if (user) {
+          try {
+            const idToken = await user.getIdToken();
+            document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Lax`;
+          } catch (err) {
+            console.error('Failed to save token to cookie:', err);
+          }
+        } else {
+          // Limpar cookie quando não houver usuário
+          document.cookie = '__session=; path=/; max-age=0';
+        }
       },
       (error) => {
         setError(error);
