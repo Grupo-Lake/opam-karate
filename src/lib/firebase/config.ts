@@ -9,7 +9,7 @@ import {
   type User,
 } from 'firebase/auth';
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyA2FLZX04W72LoRzKZookE9Pm1Nv316TDI",
   authDomain: "karate-opam.firebaseapp.com",
   projectId: "karate-opam",
