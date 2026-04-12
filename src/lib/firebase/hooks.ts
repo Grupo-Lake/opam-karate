@@ -1,18 +1,20 @@
+
 'use client';
 
+import { useCallback } from 'react';
 import { useAuth } from './auth-context';
 import { getIdToken, signOut as firebaseSignOut } from './config';
 
 export function useFirebaseAuth() {
   const { user, loading, error } = useAuth();
 
-  async function getToken(): Promise<string | null> {
+  const getToken = useCallback(async (): Promise<string | null> => {
     return getIdToken();
-  }
+  }, []);
 
-  async function signOut(): Promise<void> {
+  const signOut = useCallback(async (): Promise<void> => {
     return firebaseSignOut();
-  }
+  }, []);
 
   return {
     user,
