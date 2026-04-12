@@ -33,23 +33,18 @@ export { auth, onAuthStateChanged };
 export const googleProvider = new GoogleAuthProvider();
 
 export async function signInWithGoogle(): Promise<User> {
-  console.log('🔓 Opening Google Sign-In popup...');
   const result = await signInWithPopup(auth, googleProvider);
   const user = result.user;
   
-  console.log('✅ Google Sign-In successful for:', user.email);
-  
   // Salvar ID token em cookie para o proxy/middleware
   const idToken = await user.getIdToken();
-  console.log('🎫 ID Token obtained, saving to cookie...');
-  console.log('🍪 Token length:', idToken.length);
-  
+  console.log('🔐 Saving token to cookie, length:', idToken.length);
   document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Lax`;
-  console.log('✅ Cookie saved: __session');
   
-  // Verificar se o cookie foi realmente salvo
+  // Verificar se foi salvo
   const cookieCheck = document.cookie.includes('__session=');
-  console.log('🔍 Cookie verification:', cookieCheck ? 'FOUND' : 'NOT FOUND');
+  console.log('🍪 Cookie saved?', cookieCheck ? 'YES' : 'NO');
+  console.log('🍪 All cookies:', document.cookie);
   
   return user;
 }
