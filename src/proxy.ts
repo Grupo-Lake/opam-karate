@@ -8,30 +8,51 @@ const isPublicBackofficeRoute = createRouteMatcher([
   '/backoffice/sign-in(.*)',
   '/backoffice/sign-up(.*)',
   '/backoffice/access-denied(.*)',
+  '/backoffice/force-signout(.*)',
 ]);
 
 // Protected backoffice routes (everything else under /backoffice)
 const isProtectedRoute = createRouteMatcher(['/backoffice(.*)']);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Don't protect public auth routes, but protect everything else in backoffice
-  if (isProtectedRoute(req) && !isPublicBackofficeRoute(req)) {
+  const pathname = req.nextUrl.pathname;
+  
+  console.log(`[Middleware] Path: ${pathname}`);
+
+  // Permite rotas públicas de autenticação sem nenhuma verificação
+  if (isPublicBackofficeRoute(req)) {
+    console.log(`[Middleware] ✅ Public route allowed: ${pathname}`);
+    return NextResponse.next();
+  }
+
+  // Protege rotas do backoffice que não são públicas
+  if (isProtectedRoute(req)) {
+    console.log(`[Middleware] 🔒 Protected route, checking auth: ${pathname}`);
+    
     const { userId, sessionClaims } = await auth();
 
-    // Protege a rota (redireciona para sign-in se não autenticado)
+    // Redireciona para login se não estiver autenticado
     if (!userId) {
+      console.log(`[Middleware] ❌ Not authenticated, redirecting to sign-in`);
       const signInUrl = new URL('/backoffice/sign-in', req.url);
       signInUrl.searchParams.set('redirect_url', req.url);
       return NextResponse.redirect(signInUrl);
     }
 
+    console.log(`[Middleware] ✅ Authenticated, userId: ${userId}`);
+
     // Verifica whitelist
     const email = sessionClaims?.email as string | undefined;
 
     if (!email) {
-      const signInUrl = new URL('/backoffice/sign-in', req.url);
-      return NextResponse.redirect(signInUrl);
+      console.log(`[Middleware] ⚠️  No email in session claims - LOGOUT FORÇADO`);
+      // Estado inconsistente: usuário autenticado sem email
+      // Redireciona para página que força logout
+      const forceSignOutUrl = new URL('/backoffice/force-signout', req.url);
+      return NextResponse.redirect(forceSignOutUrl);
     }
+
+    console.log(`[Middleware] 📧 Checking whitelist for email: ${email}`);
 
     try {
       // Verifica se o email está na whitelist
@@ -43,24 +64,32 @@ export default clerkMiddleware(async (auth, req) => {
         body: JSON.stringify({ email }),
       });
 
+      console.log(`[Middleware] 📡 Whitelist check response: ${response.status}`);
+
       if (response.status === 403) {
         // Email não está na whitelist
+        console.log(`[Middleware] 🚫 Email not in whitelist, access denied`);
         const deniedUrl = new URL('/backoffice/access-denied', req.url);
         return NextResponse.redirect(deniedUrl);
       }
 
       if (!response.ok) {
-        console.error('Whitelist check failed:', response.status);
+        console.error(`[Middleware] ⚠️  Whitelist check failed: ${response.status}`);
         // Fail-open: permite acesso em caso de erro
         // Para fail-closed, descomente a linha abaixo:
         // return NextResponse.redirect(new URL('/backoffice/access-denied', req.url));
+      } else {
+        console.log(`[Middleware] ✅ Whitelist check passed`);
       }
     } catch (error) {
-      console.error('Error checking whitelist:', error);
+      console.error('[Middleware] ❌ Error checking whitelist:', error);
       // Fail-open: permite acesso em caso de erro
     }
+  } else {
+    console.log(`[Middleware] ℹ️  Not a backoffice route: ${pathname}`);
   }
 
+  console.log(`[Middleware] ➡️  Allowing access to: ${pathname}\n`);
   return NextResponse.next();
 });
 
