@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useApiClient } from "@/lib/api/client-hook";
 import type { StudentListItem } from "@/lib/api/types";
 import {
@@ -14,12 +15,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Loader2, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Loader2, Pencil, Trash2, Eye } from "lucide-react";
 import { StudentFormSheet } from "@/components/backoffice/alunos/StudentFormSheet";
 import { DeleteStudentDialog } from "@/components/backoffice/alunos/DeleteStudentDialog";
 
 export default function AlunosPage() {
   const api = useApiClient();
+  const router = useRouter();
   const [students, setStudents] = useState<StudentListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -137,7 +139,12 @@ export default function AlunosPage() {
                   filteredStudents.map((student) => (
                     <TableRow key={student.id}>
                       <TableCell className="font-medium">
-                        {student.fullName}
+                        <button
+                          onClick={() => router.push(`/backoffice/alunos/${student.id}`)}
+                          className="text-left hover:underline hover:text-primary transition-colors"
+                        >
+                          {student.fullName}
+                        </button>
                       </TableCell>
                       <TableCell>{calculateAge(student.birthDate)} anos</TableCell>
                       <TableCell>{formatDate(student.birthDate)}</TableCell>
@@ -160,7 +167,17 @@ export default function AlunosPage() {
                           <Button
                             variant="ghost"
                             size="icon-sm"
+                            onClick={() => router.push(`/backoffice/alunos/${student.id}`)}
+                            title="Ver detalhes"
+                          >
+                            <Eye className="h-4 w-4" />
+                            <span className="sr-only">Ver detalhes</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
                             onClick={() => setEditStudentId(student.id)}
+                            title="Editar"
                           >
                             <Pencil className="h-4 w-4" />
                             <span className="sr-only">Editar</span>
@@ -170,6 +187,7 @@ export default function AlunosPage() {
                             size="icon-sm"
                             onClick={() => setDeleteStudent(student)}
                             className="text-destructive hover:text-destructive"
+                            title="Excluir"
                           >
                             <Trash2 className="h-4 w-4" />
                             <span className="sr-only">Excluir</span>
