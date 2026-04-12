@@ -33,24 +33,14 @@ export { auth, onAuthStateChanged };
 export const googleProvider = new GoogleAuthProvider();
 
 export async function signInWithGoogle(): Promise<User> {
-  console.log('🔓 Opening Google Sign-In popup...');
   const result = await signInWithPopup(auth, googleProvider);
   const user = result.user;
-  
-  console.log('✅ Google Sign-In successful for:', user.email);
-  
-  // Salvar ID token em cookie para o proxy/middleware
+
+  // Salvar ID token em cookie para que o middleware possa verificar a sessão.
+  // max-age=3600 corresponde ao tempo de expiração padrão do Firebase ID token (1h).
   const idToken = await user.getIdToken();
-  console.log('🎫 ID Token obtained, saving to cookie...');
-  console.log('🍪 Token length:', idToken.length);
-  
   document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Lax`;
-  console.log('✅ Cookie saved: __session');
-  
-  // Verificar se o cookie foi realmente salvo
-  const cookieCheck = document.cookie.includes('__session=');
-  console.log('🔍 Cookie verification:', cookieCheck ? 'FOUND' : 'NOT FOUND');
-  
+
   return user;
 }
 
