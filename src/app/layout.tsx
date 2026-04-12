@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import ConditionalLayout from "@/components/ConditionalLayout";
 import SmoothScroll from "@/components/SmoothScroll";
 
 const inter = Inter({
@@ -162,12 +162,15 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
       </head>
       <body className={`${inter.className} antialiased overflow-x-hidden`}>
-        <SmoothScroll />
-        <Header />
-        <main className="pt-16 md:pt-20 overflow-x-hidden">
-          {children}
-        </main>
-        <Footer />
+        <ClerkProvider
+          signInFallbackRedirectUrl="/backoffice"
+          signUpFallbackRedirectUrl="/backoffice"
+          signInForceRedirectUrl={undefined}
+          signUpForceRedirectUrl={undefined}
+        >
+          <SmoothScroll />
+          <ConditionalLayout>{children}</ConditionalLayout>
+        </ClerkProvider>
       </body>
     </html>
   );
