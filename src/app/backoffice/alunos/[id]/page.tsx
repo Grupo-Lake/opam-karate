@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useApiClient } from "@/lib/api/client-hook";
 import type { Student, SubscriptionPlan } from "@/lib/api/types";
@@ -15,6 +15,7 @@ export default function StudentDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const api = useApiClient();
+  const apiRef = useRef(api);
   const studentId = params.id as string;
 
   const [student, setStudent] = useState<Student | null>(null);
@@ -24,16 +25,22 @@ export default function StudentDetailsPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const loadStudent = async () => {
+  useEffect(() => {
+    apiRef.current = api;
+  }, [api]);
+
+  const loadStudent = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const result = await api.students.get(studentId);
+      const result = await apiRef.current.students.get(studentId);
       setStudent(result);
       
       // Buscar detalhes do plano
       try {
-        const planResult = await api.subscriptionPlans.get(result.subscriptionPlanId);
+        const planResult = await apiRef.current.subscriptionPlans.get(
+          result.subscriptionPlanId,
+        );
         setPlan(planResult);
       } catch (planError) {
         console.error("Erro ao carregar plano:", planError);
@@ -44,12 +51,11 @@ export default function StudentDetailsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [studentId]);
 
   useEffect(() => {
     loadStudent();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [studentId]);
+  }, [loadStudent]);
 
   const formatDate = (date: Date) => {
     const d = new Date(date);
