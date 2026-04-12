@@ -14,10 +14,35 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3334";
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const error = await response.json().catch(() => ({
-      message: "An error occurred",
-    }));
-    throw new Error(error.message || `HTTP ${response.status}`);
+    let errorMessage = `HTTP ${response.status}`;
+    
+    try {
+      const errorData = await response.json();
+      console.error("❌ API Error Response:", {
+        status: response.status,
+        statusText: response.statusText,
+        data: errorData,
+      });
+      
+      if (errorData.message) {
+        errorMessage = errorData.message;
+      } else if (Array.isArray(errorData.message)) {
+        errorMessage = errorData.message.join(", ");
+      } else if (errorData.error) {
+        errorMessage = errorData.error;
+      } else if (typeof errorData === "string") {
+        errorMessage = errorData;
+      }
+      
+      if (errorData.errors && Array.isArray(errorData.errors)) {
+        errorMessage += ": " + errorData.errors.join(", ");
+      }
+    } catch (parseError) {
+      console.error("❌ Failed to parse error response:", parseError);
+      errorMessage = `${response.statusText || errorMessage} (${response.status})`;
+    }
+    
+    throw new Error(errorMessage);
   }
   return response.json();
 }
@@ -74,21 +99,47 @@ export function useApiClient() {
 
       create: async (data: CreateStudentDto): Promise<Student> => {
         const headers = await getAuthHeaders();
-        const response = await fetch(`${API_URL}/students`, {
+        const url = `${API_URL}/students`;
+        
+        console.log("🚀 POST Request:", {
+          url,
+          method: "POST",
+          headers: {
+            ...headers,
+            Authorization: (headers as Record<string, string>)["Authorization"] ? "Bearer [TOKEN]" : "Missing",
+          },
+          body: data,
+        });
+        
+        const response = await fetch(url, {
           method: "POST",
           headers,
           body: JSON.stringify(data),
         });
+        
         return handleResponse<Student>(response);
       },
 
       update: async (id: string, data: UpdateStudentDto): Promise<Student> => {
         const headers = await getAuthHeaders();
-        const response = await fetch(`${API_URL}/students/${id}`, {
+        const url = `${API_URL}/students/${id}`;
+        
+        console.log("🔄 PATCH Request:", {
+          url,
+          method: "PATCH",
+          headers: {
+            ...headers,
+            Authorization: (headers as Record<string, string>)["Authorization"] ? "Bearer [TOKEN]" : "Missing",
+          },
+          body: data,
+        });
+        
+        const response = await fetch(url, {
           method: "PATCH",
           headers,
           body: JSON.stringify(data),
         });
+        
         return handleResponse<Student>(response);
       },
 
