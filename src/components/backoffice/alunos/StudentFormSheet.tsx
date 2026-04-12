@@ -170,14 +170,14 @@ export function StudentFormSheet({
         showGuardian && form.guardian?.fullName
           ? {
               fullName: form.guardian.fullName,
-              birthDate: form.guardian.birthDate,
+              birthDate: new Date(form.guardian.birthDate).toISOString(),
               phone: form.guardian.phone,
             }
           : null
 
       const payload = {
         fullName: form.fullName,
-        birthDate: form.birthDate,
+        birthDate: new Date(form.birthDate).toISOString(),
         termsAccepted: true as const,
         subscriptionPlanId: form.subscriptionPlanId,
         address: form.address,
@@ -190,13 +190,15 @@ export function StudentFormSheet({
         const result = await api.students.create(payload)
         console.log("✅ Aluno criado com sucesso:", result)
       } else {
-        const result = await api.students.update(studentId!, {
+        const updatePayload = {
           fullName: form.fullName,
-          birthDate: form.birthDate,
+          birthDate: new Date(form.birthDate).toISOString(),
           subscriptionPlanId: form.subscriptionPlanId,
           address: form.address,
           guardian: guardianData,
-        })
+        }
+        console.log(`📝 Atualizando aluno com dados:`, updatePayload)
+        const result = await api.students.update(studentId!, updatePayload)
         console.log("✅ Aluno atualizado com sucesso:", result)
       }
 
