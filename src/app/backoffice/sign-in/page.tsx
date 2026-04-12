@@ -1,36 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { signInWithGoogle } from "@/lib/firebase/config";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3334";
-
 export default function SignInPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  async function checkWhitelist(
-    email: string,
-    token: string,
-  ): Promise<boolean> {
-    try {
-      const response = await fetch(`${API_URL}/admin-whitelist/check`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      return response.ok;
-    } catch (error) {
-      console.error("Whitelist check failed:", error);
-      return false;
-    }
-  }
 
   async function handleGoogleSignIn() {
     setLoading(true);
@@ -40,26 +19,39 @@ export default function SignInPage() {
       const user = await signInWithGoogle();
 
       if (!user.email) {
-        throw new Error("Email não encontrado");
+        throw new Error('Email não encontrado na conta Google');
       }
 
-      // Verificar whitelist
       const token = await user.getIdToken();
-      const isWhitelisted = await checkWhitelist(user.email, token);
 
-      if (!isWhitelisted) {
-        window.location.href = "/backoffice/access-denied";
+      // Verifica whitelist via Route Handler do Next.js (sem CORS, sem chamada direta ao backend)
+      const response = await fetch('/api/check-whitelist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, token }),
+      });
+
+      if (response.status === 403) {
+        router.push('/backoffice/access-denied');
         return;
       }
 
-      // Aguardar para garantir que o cookie foi salvo
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      if (!response.ok) {
+        throw new Error('Erro ao verificar autorização. Tente novamente.');
+      }
 
-      // Usar window.location.href para forçar navegação completa (server-side)
-      window.location.href = "/backoffice";
+      const data = await response.json();
+      if (!data.authorized) {
+        router.push('/backoffice/access-denied');
+        return;
+      }
+
+      // O cookie __session HttpOnly foi definido pelo servidor em /api/check-whitelist.
+      // Navegar para o backoffice — o middleware irá verificar o cookie.
+      router.push('/backoffice');
     } catch (err) {
-      console.error("Sign in error:", err);
-      setError(err instanceof Error ? err.message : "Erro ao fazer login");
+      setError(err instanceof Error ? err.message : 'Erro ao fazer login');
+    } finally {
       setLoading(false);
     }
   }

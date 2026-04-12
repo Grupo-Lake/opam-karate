@@ -34,24 +34,12 @@ export const googleProvider = new GoogleAuthProvider();
 
 export async function signInWithGoogle(): Promise<User> {
   const result = await signInWithPopup(auth, googleProvider);
-  const user = result.user;
-  
-  // Salvar ID token em cookie para o proxy/middleware
-  const idToken = await user.getIdToken();
-  console.log('🔐 Saving token to cookie, length:', idToken.length);
-  document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Lax`;
-  
-  // Verificar se foi salvo
-  const cookieCheck = document.cookie.includes('__session=');
-  console.log('🍪 Cookie saved?', cookieCheck ? 'YES' : 'NO');
-  console.log('🍪 All cookies:', document.cookie);
-  
-  return user;
+  return result.user;
 }
 
 export async function signOut(): Promise<void> {
-  // Limpar cookie do token
-  document.cookie = '__session=; path=/; max-age=0';
+  // Limpar cookie HttpOnly via rota server-side
+  await fetch('/api/sign-out', { method: 'POST' });
   await firebaseSignOut(auth);
 }
 
