@@ -77,18 +77,29 @@ export function StudentFormSheet({
 
   useEffect(() => {
     if (!open) return
-    api.subscriptionPlans.list().then(setPlans).catch(console.error)
+    
+    console.log("📋 Carregando planos de assinatura...")
+    api.subscriptionPlans.list()
+      .then((loadedPlans) => {
+        console.log("✅ Planos carregados:", loadedPlans)
+        setPlans(loadedPlans)
+      })
+      .catch((err) => {
+        console.error("❌ Erro ao carregar planos:", err)
+      })
   }, [open, api.subscriptionPlans])
 
   useEffect(() => {
     if (!open) return
 
     if (mode === "edit" && studentId) {
+      console.log(`📖 Carregando dados do aluno ${studentId} para edição...`)
       setFetchingStudent(true)
       setError(null)
       api.students
         .get(studentId)
         .then((student) => {
+          console.log("✅ Aluno carregado:", student)
           setForm({
             fullName: student.fullName,
             birthDate: new Date(student.birthDate).toISOString().split("T")[0],
@@ -110,11 +121,16 @@ export function StudentFormSheet({
           })
           setShowGuardian(!!student.guardian)
         })
-        .catch((err) =>
-          setError(err instanceof Error ? err.message : "Erro ao carregar aluno")
-        )
+        .catch((err) => {
+          console.error("❌ Erro ao carregar aluno:", err)
+          const errorMessage = err instanceof Error 
+            ? err.message 
+            : "Erro desconhecido ao carregar aluno"
+          setError(errorMessage)
+        })
         .finally(() => setFetchingStudent(false))
     } else {
+      console.log("📝 Modo criação - inicializando formulário vazio")
       setForm(emptyForm)
       setShowGuardian(false)
       setError(null)
@@ -159,29 +175,39 @@ export function StudentFormSheet({
             }
           : null
 
+      const payload = {
+        fullName: form.fullName,
+        birthDate: form.birthDate,
+        termsAccepted: true as const,
+        subscriptionPlanId: form.subscriptionPlanId,
+        address: form.address,
+        guardian: guardianData,
+      }
+
+      console.log(`📝 ${mode === "create" ? "Criando" : "Atualizando"} aluno com dados:`, payload)
+
       if (mode === "create") {
-        await api.students.create({
-          fullName: form.fullName,
-          birthDate: form.birthDate,
-          termsAccepted: true,
-          subscriptionPlanId: form.subscriptionPlanId,
-          address: form.address,
-          guardian: guardianData,
-        })
+        const result = await api.students.create(payload)
+        console.log("✅ Aluno criado com sucesso:", result)
       } else {
-        await api.students.update(studentId!, {
+        const result = await api.students.update(studentId!, {
           fullName: form.fullName,
           birthDate: form.birthDate,
           subscriptionPlanId: form.subscriptionPlanId,
           address: form.address,
           guardian: guardianData,
         })
+        console.log("✅ Aluno atualizado com sucesso:", result)
       }
 
       onSuccess()
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao salvar aluno")
+      console.error("❌ Erro ao salvar aluno:", err)
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : "Erro desconhecido ao salvar aluno"
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
