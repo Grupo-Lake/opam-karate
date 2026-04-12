@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import {
   Sheet,
@@ -66,6 +66,7 @@ export function StudentFormSheet({
   onSuccess,
 }: StudentFormSheetProps) {
   const api = useApiClient();
+  const apiRef = useRef(api);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(false);
@@ -76,9 +77,13 @@ export function StudentFormSheet({
   const isMinor = form.birthDate !== "" && calculateAge(form.birthDate) < 18;
 
   useEffect(() => {
+    apiRef.current = api;
+  }, [api]);
+
+  useEffect(() => {
     if (!open) return;
     console.log("📋 Carregando planos de assinatura...");
-    api.subscriptionPlans
+    apiRef.current.subscriptionPlans
       .list()
       .then((loadedPlans) => {
         console.log("✅ Planos carregados:", loadedPlans);
@@ -87,7 +92,7 @@ export function StudentFormSheet({
       .catch((err) => {
         console.error("❌ Erro ao carregar planos:", err);
       });
-  }, [open, api.subscriptionPlans]);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -95,7 +100,7 @@ export function StudentFormSheet({
       console.log(`📖 Carregando dados do aluno ${studentId} para edição...`);
       setFetchingStudent(true);
       setError(null);
-      api.students
+      apiRef.current.students
         .get(studentId)
         .then((student) => {
           console.log("✅ Aluno carregado:", student);
@@ -135,7 +140,7 @@ export function StudentFormSheet({
       setShowGuardian(false);
       setError(null);
     }
-  }, [api.students, mode, open, studentId]);
+  }, [mode, open, studentId]);
 
   useEffect(() => {
     if (isMinor) setShowGuardian(true);
