@@ -4,6 +4,7 @@ import { AuthProvider } from "@/lib/firebase/auth-context";
 import "./globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import SmoothScroll from "@/components/SmoothScroll";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -165,6 +166,7 @@ export default function RootLayout({
         <AuthProvider>
           <SmoothScroll />
           <ConditionalLayout>{children}</ConditionalLayout>
+          <Toaster />
         </AuthProvider>
       </body>
     </html>
