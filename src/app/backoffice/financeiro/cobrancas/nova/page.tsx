@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApiClient } from "@/lib/api/client-hook";
 import type { StudentListItem } from "@/lib/api/types";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
 export default function NovaCobrancaPage() {
@@ -48,6 +49,8 @@ export default function NovaCobrancaPage() {
     setError(null);
 
     try {
+      toast.loading("Criando cobrança...", { id: "create-charge" });
+
       await apiRef.current.charges.create({
         studentId: formData.studentId,
         referenceMonth: formData.referenceMonth,
@@ -55,10 +58,13 @@ export default function NovaCobrancaPage() {
         notes: formData.notes || null,
       });
 
-      alert("Cobrança criada com sucesso!");
+      toast.success("Cobrança criada com sucesso!", { id: "create-charge" });
       router.push("/backoffice/financeiro/cobrancas");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao criar cobrança");
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro ao criar cobrança";
+      toast.error(errorMessage, { id: "create-charge" });
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
