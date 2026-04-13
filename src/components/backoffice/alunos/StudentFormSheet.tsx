@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Sheet,
   SheetContent,
@@ -195,8 +196,10 @@ export function StudentFormSheet({
       );
 
       if (mode === "create") {
+        toast.loading("Criando aluno...", { id: "student-action" });
         const result = await api.students.create(payload);
         console.log("✅ Aluno criado com sucesso:", result);
+        toast.success("Aluno criado com sucesso!", { id: "student-action" });
       } else {
         const updatePayload = {
           fullName: form.fullName,
@@ -206,8 +209,10 @@ export function StudentFormSheet({
           guardian: guardianData,
         };
         console.log(`📝 Atualizando aluno com dados:`, updatePayload);
+        toast.loading("Atualizando aluno...", { id: "student-action" });
         const result = await api.students.update(studentId!, updatePayload);
         console.log("✅ Aluno atualizado com sucesso:", result);
+        toast.success("Aluno atualizado com sucesso!", { id: "student-action" });
       }
 
       onSuccess();
@@ -218,6 +223,7 @@ export function StudentFormSheet({
         err instanceof Error
           ? err.message
           : "Erro desconhecido ao salvar aluno";
+      toast.error(errorMessage, { id: "student-action" });
       setError(errorMessage);
     } finally {
       setLoading(false);

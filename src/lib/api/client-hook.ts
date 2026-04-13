@@ -9,6 +9,19 @@ import type {
   CreateStudentDto,
   UpdateStudentDto,
 } from "./types";
+import type {
+  Charge,
+  PaginatedCharges,
+  CreateChargeDto,
+  UpdateChargeStatusDto,
+  ApplyDiscountDto,
+  ListChargesQuery,
+  Payment,
+  RegisterPaymentDto,
+  ListPaymentsQuery,
+  PaymentStats,
+  StatsQuery,
+} from "./payments-types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3334";
 
@@ -318,6 +331,111 @@ export function useApiClient() {
             console.error("❌ Erro fatal ao listar guardians:", error);
             throw error;
           }
+        },
+      },
+
+      charges: {
+        list: async (query?: ListChargesQuery): Promise<PaginatedCharges> => {
+          const searchParams = new URLSearchParams();
+          if (query?.studentId) searchParams.set("studentId", query.studentId);
+          if (query?.status) searchParams.set("status", query.status);
+          if (query?.referenceMonth) searchParams.set("referenceMonth", query.referenceMonth.toString());
+          if (query?.referenceYear) searchParams.set("referenceYear", query.referenceYear.toString());
+          if (query?.page) searchParams.set("page", query.page.toString());
+          if (query?.limit) searchParams.set("limit", query.limit.toString());
+
+          const headers = await getAuthHeaders();
+          const response = await fetch(
+            `${API_URL}/charges?${searchParams.toString()}`,
+            { headers },
+          );
+          return handleResponse<PaginatedCharges>(response);
+        },
+
+        get: async (id: string): Promise<Charge> => {
+          const headers = await getAuthHeaders();
+          const response = await fetch(`${API_URL}/charges/${id}`, {
+            headers,
+          });
+          return handleResponse<Charge>(response);
+        },
+
+        create: async (data: CreateChargeDto): Promise<Charge> => {
+          const headers = await getAuthHeaders();
+          const response = await fetch(`${API_URL}/charges`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(data),
+          });
+          return handleResponse<Charge>(response);
+        },
+
+        updateStatus: async (
+          id: string,
+          data: UpdateChargeStatusDto,
+        ): Promise<Charge> => {
+          const headers = await getAuthHeaders();
+          const response = await fetch(`${API_URL}/charges/${id}/status`, {
+            method: "PATCH",
+            headers,
+            body: JSON.stringify(data),
+          });
+          return handleResponse<Charge>(response);
+        },
+
+        applyDiscount: async (
+          id: string,
+          data: ApplyDiscountDto,
+        ): Promise<Charge> => {
+          const headers = await getAuthHeaders();
+          const response = await fetch(`${API_URL}/charges/${id}/discount`, {
+            method: "PATCH",
+            headers,
+            body: JSON.stringify(data),
+          });
+          return handleResponse<Charge>(response);
+        },
+
+        registerPayment: async (
+          id: string,
+          data: RegisterPaymentDto,
+        ): Promise<Payment> => {
+          const headers = await getAuthHeaders();
+          const response = await fetch(`${API_URL}/charges/${id}/payment`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(data),
+          });
+          return handleResponse<Payment>(response);
+        },
+      },
+
+      payments: {
+        list: async (query?: ListPaymentsQuery): Promise<Payment[]> => {
+          const searchParams = new URLSearchParams();
+          if (query?.studentId) searchParams.set("studentId", query.studentId);
+          if (query?.referenceMonth) searchParams.set("referenceMonth", query.referenceMonth.toString());
+          if (query?.referenceYear) searchParams.set("referenceYear", query.referenceYear.toString());
+
+          const headers = await getAuthHeaders();
+          const response = await fetch(
+            `${API_URL}/payments?${searchParams.toString()}`,
+            { headers },
+          );
+          return handleResponse<Payment[]>(response);
+        },
+
+        stats: async (query: StatsQuery): Promise<PaymentStats> => {
+          const searchParams = new URLSearchParams();
+          searchParams.set("referenceMonth", query.referenceMonth.toString());
+          searchParams.set("referenceYear", query.referenceYear.toString());
+
+          const headers = await getAuthHeaders();
+          const response = await fetch(
+            `${API_URL}/payments/stats?${searchParams.toString()}`,
+            { headers },
+          );
+          return handleResponse<PaymentStats>(response);
         },
       },
     }),

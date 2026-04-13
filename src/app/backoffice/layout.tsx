@@ -9,6 +9,7 @@ import {
   CreditCard,
   LayoutDashboard,
   LogOut,
+  DollarSign,
 } from "lucide-react";
 import {
   Sidebar,
@@ -39,6 +40,11 @@ const navItems = [
     href: "/backoffice/planos",
     label: "Planos",
     icon: CreditCard,
+  },
+  {
+    href: "/backoffice/financeiro",
+    label: "Financeiro",
+    icon: DollarSign,
   },
 ];
 

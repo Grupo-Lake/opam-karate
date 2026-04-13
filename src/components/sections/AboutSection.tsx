@@ -30,7 +30,7 @@ export default function AboutSection() {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="relative h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-2xl">
+            <div className="relative h-100 md:h-125 rounded-lg overflow-hidden shadow-2xl">
               <Image
                 src="/lp/foto-sobre.webp"
                 alt="OPAM Karate Dojo"
