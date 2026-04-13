@@ -3,19 +3,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useApiClient } from "@/lib/api/client-hook";
-import type { Charge, ChargeStatus } from "@/lib/api/payments-types";
+import type { Charge, ChargeStatus, Payment } from "@/lib/api/payments-types";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ReceiptDialog } from "@/components/backoffice/financeiro/ReceiptDialog";
 import { toast } from "sonner";
 import {
   ArrowLeft,
   Loader2,
   DollarSign,
   Calendar,
+  Printer,
 } from "lucide-react";
 
 export default function ChargeDetailsPage() {
@@ -26,9 +28,11 @@ export default function ChargeDetailsPage() {
   const chargeId = params.id as string;
 
   const [charge, setCharge] = useState<Charge | null>(null);
+  const [payment, setPayment] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [receiptOpen, setReceiptOpen] = useState(false);
 
   // Estados para ações
   const [showPaymentForm, setShowPaymentForm] = useState(false);
@@ -266,7 +270,20 @@ export default function ChargeDetailsPage() {
               Vencimento: {formatDate(charge.dueDate)}
             </p>
           </div>
-          {getStatusBadge(charge.status)}
+          <div className="flex items-center gap-2">
+            {getStatusBadge(charge.status)}
+            {charge.status === "paid" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setReceiptOpen(true)}
+                className="gap-2"
+              >
+                <Printer className="h-4 w-4" />
+                Imprimir Recibo
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -501,6 +518,14 @@ export default function ChargeDetailsPage() {
         description={confirmDialog.description}
         variant={confirmDialog.variant}
         loading={actionLoading}
+      />
+
+      {/* Dialog de Recibo */}
+      <ReceiptDialog
+        charge={charge}
+        payment={payment}
+        open={receiptOpen}
+        onOpenChange={setReceiptOpen}
       />
     </div>
   );
