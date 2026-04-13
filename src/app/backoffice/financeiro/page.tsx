@@ -5,8 +5,13 @@ import { useApiClient } from "@/lib/api/client-hook";
 import type { PaymentStats } from "@/lib/api/payments-types";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, TrendingUp, TrendingDown, DollarSign, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, TrendingUp, TrendingDown, DollarSign, AlertCircle, FileSpreadsheet, FileText, Download } from "lucide-react";
 import { FinanceiroNav } from "@/components/backoffice/financeiro/FinanceiroNav";
+import { OverdueChargesAlert, UpcomingChargesNotification } from "@/components/backoffice/financeiro/OverdueChargesAlert";
+import { PaymentEvolutionChart } from "@/components/backoffice/financeiro/PaymentEvolutionChart";
+import { exportFinancialSummaryPDF } from "@/lib/export/reports";
+import { toast } from "sonner";
 
 export default function FinanceiroPage() {
   const api = useApiClient();
@@ -57,6 +62,28 @@ export default function FinanceiroPage() {
     return `${value.toFixed(1)}%`;
   };
 
+  const handleExportPDF = () => {
+    if (!stats) return;
+    try {
+      toast.loading("Gerando relatório PDF...", { id: "export-pdf" });
+      exportFinancialSummaryPDF(stats, selectedMonth, selectedYear);
+      toast.success("Relatório PDF gerado com sucesso!", { id: "export-pdf" });
+    } catch (err) {
+      toast.error("Erro ao gerar relatório PDF", { id: "export-pdf" });
+    }
+  };
+
+  // Mock data para o gráfico de evolução (últimos 6 meses)
+  const evolutionData = Array.from({ length: 6 }, (_, i) => {
+    const date = new Date(selectedYear, selectedMonth - 1 - (5 - i), 1);
+    return {
+      month: date.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }),
+      revenueInCents: Math.random() * 50000 + 30000,
+      paymentsCount: Math.floor(Math.random() * 30 + 10),
+      chargesCount: Math.floor(Math.random() * 40 + 15),
+    };
+  });
+
   const months = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -76,8 +103,8 @@ export default function FinanceiroPage() {
           </p>
         </div>
 
-        {/* Seletor de Mês/Ano */}
-        <div className="flex gap-2">
+        <div className="flex gap-3">
+          {/* Seletor de Mês/Ano */}
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
@@ -100,7 +127,24 @@ export default function FinanceiroPage() {
               </option>
             ))}
           </select>
+
+          {/* Botão de Exportação */}
+          <Button
+            onClick={handleExportPDF}
+            disabled={!stats || loading}
+            variant="outline"
+            className="gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            Exportar PDF
+          </Button>
         </div>
+      </div>
+
+      {/* Alertas e Notificações */}
+      <div className="mb-6 grid gap-4 md:grid-cols-2">
+        <OverdueChargesAlert />
+        <UpcomingChargesNotification />
       </div>
 
       {error && (
@@ -175,6 +219,11 @@ export default function FinanceiroPage() {
                 <TrendingDown className="h-10 w-10 text-red-500" />
               </div>
             </Card>
+          </div>
+
+          {/* Gráfico de Evolução */}
+          <div className="mb-6">
+            <PaymentEvolutionChart data={evolutionData} type="area" />
           </div>
 
           {/* Cobranças por Status */}
