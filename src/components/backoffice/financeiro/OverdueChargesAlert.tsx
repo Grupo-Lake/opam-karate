@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useApiClient } from "@/lib/api/client-hook";
 import type { Charge } from "@/lib/api/payments-types";
 import { Card } from "@/components/ui/card";
@@ -19,25 +19,25 @@ export function OverdueChargesAlert() {
     apiRef.current = api;
   }, [api]);
 
-  useEffect(() => {
-    const loadOverdueCharges = async () => {
-      try {
-        setLoading(true);
-        const result = await apiRef.current.charges.list({
-          page: 1,
-          limit: 10,
-          status: "overdue",
-        });
-        setOverdueCharges(result.data);
-      } catch (err) {
-        console.error("Error loading overdue charges:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadOverdueCharges();
+  const loadOverdueCharges = useCallback(async () => {
+    try {
+      setLoading(true);
+      const result = await apiRef.current.charges.list({
+        page: 1,
+        limit: 10,
+        status: "overdue",
+      });
+      setOverdueCharges(result.data);
+    } catch (err) {
+      console.error("Error loading overdue charges:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadOverdueCharges();
+  }, [loadOverdueCharges]);
 
   if (loading || dismissed || overdueCharges.length === 0) {
     return null;
@@ -133,36 +133,36 @@ export function UpcomingChargesNotification() {
     apiRef.current = api;
   }, [api]);
 
-  useEffect(() => {
-    const loadUpcomingCharges = async () => {
-      try {
-        setLoading(true);
-        const result = await apiRef.current.charges.list({
-          page: 1,
-          limit: 5,
-          status: "pending",
-        });
+  const loadUpcomingCharges = useCallback(async () => {
+    try {
+      setLoading(true);
+      const result = await apiRef.current.charges.list({
+        page: 1,
+        limit: 5,
+        status: "pending",
+      });
 
-        // Filter charges due in the next 7 days
-        const today = new Date();
-        const sevenDaysFromNow = new Date();
-        sevenDaysFromNow.setDate(today.getDate() + 7);
+      // Filter charges due in the next 7 days
+      const today = new Date();
+      const sevenDaysFromNow = new Date();
+      sevenDaysFromNow.setDate(today.getDate() + 7);
 
-        const upcoming = result.data.filter((charge) => {
-          const dueDate = new Date(charge.dueDate);
-          return dueDate >= today && dueDate <= sevenDaysFromNow;
-        });
+      const upcoming = result.data.filter((charge) => {
+        const dueDate = new Date(charge.dueDate);
+        return dueDate >= today && dueDate <= sevenDaysFromNow;
+      });
 
-        setUpcomingCharges(upcoming);
-      } catch (err) {
-        console.error("Error loading upcoming charges:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadUpcomingCharges();
+      setUpcomingCharges(upcoming);
+    } catch (err) {
+      console.error("Error loading upcoming charges:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadUpcomingCharges();
+  }, [loadUpcomingCharges]);
 
   if (loading || upcomingCharges.length === 0) {
     return null;
