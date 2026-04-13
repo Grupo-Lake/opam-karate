@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApiClient } from "@/lib/api/client-hook";
+import { useFirebaseAuth } from "@/lib/firebase/hooks";
 import type { StudentListItem } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,7 @@ export default function NovaCobrancaPage() {
   const router = useRouter();
   const api = useApiClient();
   const apiRef = useRef(api);
+  const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
 
   const [students, setStudents] = useState<StudentListItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -31,17 +33,22 @@ export default function NovaCobrancaPage() {
     apiRef.current = api;
   }, [api]);
 
+  const loadStudents = useCallback(async () => {
+    if (!isAuthenticated || authLoading) {
+      return;
+    }
+
+    try {
+      const result = await apiRef.current.students.list({ limit: 100 });
+      setStudents(result.data);
+    } catch (err) {
+      console.error("Erro ao carregar alunos:", err);
+    }
+  }, [isAuthenticated, authLoading]);
+
   useEffect(() => {
-    const loadStudents = async () => {
-      try {
-        const result = await apiRef.current.students.list({ limit: 100 });
-        setStudents(result.data);
-      } catch (err) {
-        console.error("Erro ao carregar alunos:", err);
-      }
-    };
     loadStudents();
-  }, []);
+  }, [loadStudents]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

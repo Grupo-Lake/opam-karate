@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useApiClient } from "@/lib/api/client-hook";
+import { useFirebaseAuth } from "@/lib/firebase/hooks";
 import type { Payment, PaymentMethod } from "@/lib/api/payments-types";
 import {
   Table,
@@ -13,12 +14,16 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search, Loader2, CreditCard } from "lucide-react";
+import { Search, Loader2, CreditCard, FileSpreadsheet, FileText } from "lucide-react";
 import { FinanceiroNav } from "@/components/backoffice/financeiro/FinanceiroNav";
+import { Button } from "@/components/ui/button";
+import { exportPaymentsExcel, exportPaymentsPDF } from "@/lib/export/reports";
+import { toast } from "sonner";
 
 export default function PagamentosPage() {
   const api = useApiClient();
   const apiRef = useRef(api);
+  const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +34,10 @@ export default function PagamentosPage() {
   }, [api]);
 
   const loadPayments = useCallback(async () => {
+    if (!isAuthenticated || authLoading) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -41,7 +50,7 @@ export default function PagamentosPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated, authLoading]);
 
   useEffect(() => {
     loadPayments();
@@ -85,6 +94,26 @@ export default function PagamentosPage() {
     );
   });
 
+  const handleExportExcel = () => {
+    try {
+      toast.loading("Gerando arquivo Excel...", { id: "export-excel" });
+      exportPaymentsExcel(filteredPayments, "pagamentos");
+      toast.success("Arquivo Excel gerado com sucesso!", { id: "export-excel" });
+    } catch (err) {
+      toast.error("Erro ao gerar arquivo Excel", { id: "export-excel" });
+    }
+  };
+
+  const handleExportPDF = () => {
+    try {
+      toast.loading("Gerando relatório PDF...", { id: "export-pdf" });
+      exportPaymentsPDF(filteredPayments, "pagamentos");
+      toast.success("Relatório PDF gerado com sucesso!", { id: "export-pdf" });
+    } catch (err) {
+      toast.error("Erro ao gerar relatório PDF", { id: "export-pdf" });
+    }
+  };
+
   return (
     <div>
       <FinanceiroNav />
@@ -99,7 +128,7 @@ export default function PagamentosPage() {
       </div>
 
       <div className="mb-6">
-        <div className="relative">
+        <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
             type="text"
@@ -108,6 +137,30 @@ export default function PagamentosPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+        </div>
+
+        {/* Botões de Exportação */}
+        <div className="flex gap-2">
+          <Button
+            onClick={handleExportExcel}
+            disabled={loading || filteredPayments.length === 0}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            Exportar Excel
+          </Button>
+          <Button
+            onClick={handleExportPDF}
+            disabled={loading || filteredPayments.length === 0}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            Exportar PDF
+          </Button>
         </div>
       </div>
 
