@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useApiClient } from "@/lib/api/client-hook";
+import { useFirebaseAuth } from "@/lib/firebase/hooks";
 import type { Payment, PaymentMethod } from "@/lib/api/payments-types";
 import {
   Table,
@@ -22,6 +23,7 @@ import { toast } from "sonner";
 export default function PagamentosPage() {
   const api = useApiClient();
   const apiRef = useRef(api);
+  const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +34,10 @@ export default function PagamentosPage() {
   }, [api]);
 
   const loadPayments = useCallback(async () => {
+    if (!isAuthenticated || authLoading) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -44,7 +50,7 @@ export default function PagamentosPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated, authLoading]);
 
   useEffect(() => {
     loadPayments();

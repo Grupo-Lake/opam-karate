@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useApiClient } from "@/lib/api/client-hook";
+import { useFirebaseAuth } from "@/lib/firebase/hooks";
 import type { Charge, ChargeStatus, Payment } from "@/lib/api/payments-types";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +26,7 @@ export default function ChargeDetailsPage() {
   const router = useRouter();
   const api = useApiClient();
   const apiRef = useRef(api);
+  const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const chargeId = params.id as string;
 
   const [charge, setCharge] = useState<Charge | null>(null);
@@ -63,6 +65,10 @@ export default function ChargeDetailsPage() {
   }, [api]);
 
   const loadCharge = useCallback(async () => {
+    if (!isAuthenticated || authLoading) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -78,7 +84,7 @@ export default function ChargeDetailsPage() {
     } finally {
       setLoading(false);
     }
-  }, [chargeId]);
+  }, [chargeId, isAuthenticated, authLoading]);
 
   useEffect(() => {
     loadCharge();

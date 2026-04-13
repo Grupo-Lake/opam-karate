@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApiClient } from "@/lib/api/client-hook";
+import { useFirebaseAuth } from "@/lib/firebase/hooks";
 import type { Charge, ChargeStatus } from "@/lib/api/payments-types";
 import {
   Table,
@@ -24,6 +25,7 @@ export default function CobrancasPage() {
   const api = useApiClient();
   const apiRef = useRef(api);
   const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const [charges, setCharges] = useState<Charge[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +39,10 @@ export default function CobrancasPage() {
   }, [api]);
 
   const loadCharges = useCallback(async () => {
+    if (!isAuthenticated || authLoading) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -54,7 +60,7 @@ export default function CobrancasPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, statusFilter]);
+  }, [page, statusFilter, isAuthenticated, authLoading]);
 
   useEffect(() => {
     loadCharges();

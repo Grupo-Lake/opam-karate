@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useApiClient } from "@/lib/api/client-hook";
+import { useFirebaseAuth } from "@/lib/firebase/hooks";
 import type { PaymentStats } from "@/lib/api/payments-types";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,7 @@ import { toast } from "sonner";
 export default function FinanceiroPage() {
   const api = useApiClient();
   const apiRef = useRef(api);
+  const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const [stats, setStats] = useState<PaymentStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +32,10 @@ export default function FinanceiroPage() {
   }, [api]);
 
   const loadStats = useCallback(async () => {
+    if (!isAuthenticated || authLoading) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -45,7 +51,7 @@ export default function FinanceiroPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedMonth, selectedYear]);
+  }, [selectedMonth, selectedYear, isAuthenticated, authLoading]);
 
   useEffect(() => {
     loadStats();
