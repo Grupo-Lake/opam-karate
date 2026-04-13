@@ -9,13 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Loader2,
   DollarSign,
   Calendar,
-  Tag,
-  AlertCircle,
 } from "lucide-react";
 
 export default function ChargeDetailsPage() {
@@ -38,6 +38,20 @@ export default function ChargeDetailsPage() {
   const [payerType, setPayerType] = useState<"student" | "guardian">("student");
   const [discountAmount, setDiscountAmount] = useState("");
   const [discountReason, setDiscountReason] = useState("");
+
+  // Estados para confirmações
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    action: () => Promise<void>;
+    variant?: "default" | "destructive";
+  }>({
+    open: false,
+    title: "",
+    description: "",
+    action: async () => {},
+  });
 
   useEffect(() => {
     apiRef.current = api;
@@ -100,6 +114,8 @@ export default function ChargeDetailsPage() {
       setActionLoading(true);
       setError(null);
 
+      toast.loading("Registrando pagamento...", { id: "register-payment" });
+
       await apiRef.current.charges.registerPayment(chargeId, {
         paymentMethod,
         paidAt: new Date().toISOString(),
@@ -107,13 +123,13 @@ export default function ChargeDetailsPage() {
         payerType,
       });
 
-      alert("Pagamento registrado com sucesso!");
+      toast.success("Pagamento registrado com sucesso!", { id: "register-payment" });
       setShowPaymentForm(false);
       loadCharge();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Erro ao registrar pagamento"
-      );
+      const errorMessage = err instanceof Error ? err.message : "Erro ao registrar pagamento";
+      toast.error(errorMessage, { id: "register-payment" });
+      setError(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -127,43 +143,77 @@ export default function ChargeDetailsPage() {
       setActionLoading(true);
       setError(null);
 
+      toast.loading("Aplicando desconto...", { id: "apply-discount" });
+
       const discountInCents = parseFloat(discountAmount) * 100;
       await apiRef.current.charges.applyDiscount(chargeId, {
         discountInCents,
         reason: discountReason,
       });
 
-      alert("Desconto aplicado com sucesso!");
+      toast.success("Desconto aplicado com sucesso!", { id: "apply-discount" });
       setShowDiscountForm(false);
       setDiscountAmount("");
       setDiscountReason("");
       loadCharge();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao aplicar desconto");
+      const errorMessage = err instanceof Error ? err.message : "Erro ao aplicar desconto";
+      toast.error(errorMessage, { id: "apply-discount" });
+      setError(errorMessage);
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleUpdateStatus = async (status: "overdue" | "cancelled" | "exempt") => {
-    if (!charge) return;
+  const handleUpdateStatus = (status: "overdue" | "cancelled" | "exempt") => {
+    const statusLabels = {
+      overdue: "vencida",
+      cancelled: "cancelada",
+      exempt: "isenta",
+    };
 
-    const confirmMsg = `Tem certeza que deseja marcar como ${status === "overdue" ? "vencida" : status === "cancelled" ? "cancelada" : "isenta"}?`;
-    if (!confirm(confirmMsg)) return;
+    const statusMessages = {
+      overdue: {
+        title: "Marcar como Vencida",
+        description: "Tem certeza que deseja marcar esta cobrança como vencida?",
+      },
+      cancelled: {
+        title: "Cancelar Cobrança",
+        description: "Tem certeza que deseja cancelar esta cobrança? Esta ação não pode ser desfeita.",
+        variant: "destructive" as const,
+      },
+      exempt: {
+        title: "Isentar Cobrança",
+        description: "Tem certeza que deseja isentar esta cobrança?",
+      },
+    };
 
-    try {
-      setActionLoading(true);
-      setError(null);
+    const config = statusMessages[status];
 
-      await apiRef.current.charges.updateStatus(chargeId, { status });
+    setConfirmDialog({
+      open: true,
+      title: config.title,
+      description: config.description,
+      variant: config.variant,
+      action: async () => {
+        try {
+          setActionLoading(true);
+          toast.loading(`Atualizando status...`, { id: "update-status" });
 
-      alert("Status atualizado com sucesso!");
-      loadCharge();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao atualizar status");
-    } finally {
-      setActionLoading(false);
-    }
+          await apiRef.current.charges.updateStatus(chargeId, { status });
+
+          toast.success(`Cobrança marcada como ${statusLabels[status]}!`, { id: "update-status" });
+          setConfirmDialog({ ...confirmDialog, open: false });
+          loadCharge();
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : "Erro ao atualizar status";
+          toast.error(errorMessage, { id: "update-status" });
+          setError(errorMessage);
+        } finally {
+          setActionLoading(false);
+        }
+      },
+    });
   };
 
   if (loading) {
@@ -438,6 +488,17 @@ export default function ChargeDetailsPage() {
           )}
         </Card>
       )}
+
+      {/* Dialog de Confirmação */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+        onConfirm={confirmDialog.action}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        variant={confirmDialog.variant}
+        loading={actionLoading}
+      />
     </div>
   );
 }
