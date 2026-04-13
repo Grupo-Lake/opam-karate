@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
@@ -36,11 +37,15 @@ export function DeleteStudentDialog({
     setLoading(true)
     setError(null)
     try {
+      toast.loading("Excluindo aluno...", { id: "delete-student" })
       await api.students.delete(student.id)
+      toast.success("Aluno excluído com sucesso!", { id: "delete-student" })
       onSuccess()
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao excluir aluno")
+      const errorMessage = err instanceof Error ? err.message : "Erro ao excluir aluno"
+      toast.error(errorMessage, { id: "delete-student" })
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
