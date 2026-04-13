@@ -15,8 +15,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Loader2 } from "lucide-react";
+import { Plus, Search, Loader2, FileSpreadsheet, FileText } from "lucide-react";
 import { FinanceiroNav } from "@/components/backoffice/financeiro/FinanceiroNav";
+import { exportChargesExcel, exportChargesPDF } from "@/lib/export/reports";
+import { toast } from "sonner";
 
 export default function CobrancasPage() {
   const api = useApiClient();
@@ -91,6 +93,26 @@ export default function CobrancasPage() {
     return charge.studentId.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
+  const handleExportExcel = () => {
+    try {
+      toast.loading("Gerando arquivo Excel...", { id: "export-excel" });
+      exportChargesExcel(filteredCharges, "cobrancas");
+      toast.success("Arquivo Excel gerado com sucesso!", { id: "export-excel" });
+    } catch (err) {
+      toast.error("Erro ao gerar arquivo Excel", { id: "export-excel" });
+    }
+  };
+
+  const handleExportPDF = () => {
+    try {
+      toast.loading("Gerando relatório PDF...", { id: "export-pdf" });
+      exportChargesPDF(filteredCharges, "cobrancas");
+      toast.success("Relatório PDF gerado com sucesso!", { id: "export-pdf" });
+    } catch (err) {
+      toast.error("Erro ao gerar relatório PDF", { id: "export-pdf" });
+    }
+  };
+
   return (
     <div>
       <FinanceiroNav />
@@ -137,6 +159,30 @@ export default function CobrancasPage() {
           <option value="cancelled">Cancelada</option>
           <option value="exempt">Isenta</option>
         </select>
+      </div>
+
+      {/* Botões de Exportação */}
+      <div className="mb-4 flex gap-2">
+        <Button
+          onClick={handleExportExcel}
+          disabled={loading || filteredCharges.length === 0}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <FileSpreadsheet className="h-4 w-4" />
+          Exportar Excel
+        </Button>
+        <Button
+          onClick={handleExportPDF}
+          disabled={loading || filteredCharges.length === 0}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <FileText className="h-4 w-4" />
+          Exportar PDF
+        </Button>
       </div>
 
       {error && (
