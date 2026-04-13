@@ -51,6 +51,7 @@ export default function ChargeDetailsPage() {
     title: "",
     description: "",
     action: async () => {},
+    variant: undefined,
   });
 
   useEffect(() => {
@@ -176,6 +177,7 @@ export default function ChargeDetailsPage() {
       overdue: {
         title: "Marcar como Vencida",
         description: "Tem certeza que deseja marcar esta cobrança como vencida?",
+        variant: undefined,
       },
       cancelled: {
         title: "Cancelar Cobrança",
@@ -185,6 +187,7 @@ export default function ChargeDetailsPage() {
       exempt: {
         title: "Isentar Cobrança",
         description: "Tem certeza que deseja isentar esta cobrança?",
+        variant: undefined,
       },
     };
 
@@ -397,7 +400,7 @@ export default function ChargeDetailsPage() {
                   <select
                     id="paymentMethod"
                     value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value as any)}
+                    onChange={(e) => setPaymentMethod(e.target.value as "pix" | "credit_card" | "debit_card")}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
                     required
                   >
@@ -411,7 +414,7 @@ export default function ChargeDetailsPage() {
                   <select
                     id="payerType"
                     value={payerType}
-                    onChange={(e) => setPayerType(e.target.value as any)}
+                    onChange={(e) => setPayerType(e.target.value as "student" | "guardian")}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
                     required
                   >
