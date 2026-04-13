@@ -5,7 +5,8 @@
       "Bash(npx tsc:*)",
       "Bash(npx prisma:*)",
       "Skill(commit-commands:commit)",
-      "Skill(commit-commands:commit:*)"
+      "Skill(commit-commands:commit:*)",
+      "Bash(npx jest:*)"
     ]
   }
 }
