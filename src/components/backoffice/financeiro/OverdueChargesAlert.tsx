@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useApiClient } from "@/lib/api/client-hook";
+import { useFirebaseAuth } from "@/lib/firebase/hooks";
 import type { Charge } from "@/lib/api/payments-types";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import Link from "next/link";
 export function OverdueChargesAlert() {
   const api = useApiClient();
   const apiRef = useRef(api);
+  const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const [overdueCharges, setOverdueCharges] = useState<Charge[]>([]);
   const [loading, setLoading] = useState(true);
   const [dismissed, setDismissed] = useState(false);
@@ -20,6 +22,10 @@ export function OverdueChargesAlert() {
   }, [api]);
 
   const loadOverdueCharges = useCallback(async () => {
+    if (!isAuthenticated || authLoading) {
+      return;
+    }
+
     try {
       setLoading(true);
       const result = await apiRef.current.charges.list({
@@ -33,7 +39,7 @@ export function OverdueChargesAlert() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated, authLoading]);
 
   useEffect(() => {
     loadOverdueCharges();
@@ -126,6 +132,7 @@ export function OverdueChargesAlert() {
 export function UpcomingChargesNotification() {
   const api = useApiClient();
   const apiRef = useRef(api);
+  const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
   const [upcomingCharges, setUpcomingCharges] = useState<Charge[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -134,6 +141,10 @@ export function UpcomingChargesNotification() {
   }, [api]);
 
   const loadUpcomingCharges = useCallback(async () => {
+    if (!isAuthenticated || authLoading) {
+      return;
+    }
+
     try {
       setLoading(true);
       const result = await apiRef.current.charges.list({
@@ -158,7 +169,7 @@ export function UpcomingChargesNotification() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated, authLoading]);
 
   useEffect(() => {
     loadUpcomingCharges();
