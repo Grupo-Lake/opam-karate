@@ -29,6 +29,46 @@ interface PaymentEvolutionChartProps {
   type?: "line" | "area" | "bar";
 }
 
+interface TooltipEntry {
+  color?: string;
+  name?: string;
+  dataKey?: string;
+  value?: number;
+}
+
+interface TooltipProps {
+  active?: boolean;
+  payload?: TooltipEntry[];
+  label?: string;
+}
+
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 0,
+  }).format(value);
+};
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-lg border bg-white p-4 shadow-lg dark:bg-gray-800">
+        <p className="mb-2 font-semibold">{label}</p>
+        {payload.map((entry, index) => (
+          <p key={index} style={{ color: entry.color }}>
+            {entry.name}:{" "}
+            {entry.dataKey === "revenue"
+              ? formatCurrency(entry.value ?? 0)
+              : entry.value}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 export function PaymentEvolutionChart({
   data,
   type = "area",
@@ -41,33 +81,6 @@ export function PaymentEvolutionChart({
       charges: item.chargesCount,
     }));
   }, [data]);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-      minimumFractionDigits: 0,
-    }).format(value);
-  };
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="rounded-lg border bg-white p-4 shadow-lg dark:bg-gray-800">
-          <p className="mb-2 font-semibold">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ color: entry.color }}>
-              {entry.name}:{" "}
-              {entry.dataKey === "revenue"
-                ? formatCurrency(entry.value)
-                : entry.value}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
 
   if (chartData.length === 0) {
     return (
