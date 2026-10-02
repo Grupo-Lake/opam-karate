@@ -1,7 +1,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-interface SidebarProps extends React.HTMLAttributes<HTMLElement> {}
+type SidebarProps = React.HTMLAttributes<HTMLElement>
 
 const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
   ({ className, ...props }, ref) => (
@@ -17,7 +17,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
 )
 Sidebar.displayName = "Sidebar"
 
-interface SidebarHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
+type SidebarHeaderProps = React.HTMLAttributes<HTMLDivElement>
 
 const SidebarHeader = React.forwardRef<HTMLDivElement, SidebarHeaderProps>(
   ({ className, ...props }, ref) => (
@@ -30,7 +30,7 @@ const SidebarHeader = React.forwardRef<HTMLDivElement, SidebarHeaderProps>(
 )
 SidebarHeader.displayName = "SidebarHeader"
 
-interface SidebarContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+type SidebarContentProps = React.HTMLAttributes<HTMLDivElement>
 
 const SidebarContent = React.forwardRef<HTMLDivElement, SidebarContentProps>(
   ({ className, ...props }, ref) => (
@@ -43,7 +43,7 @@ const SidebarContent = React.forwardRef<HTMLDivElement, SidebarContentProps>(
 )
 SidebarContent.displayName = "SidebarContent"
 
-interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {}
+type SidebarNavProps = React.HTMLAttributes<HTMLElement>
 
 const SidebarNav = React.forwardRef<HTMLElement, SidebarNavProps>(
   ({ className, ...props }, ref) => (
