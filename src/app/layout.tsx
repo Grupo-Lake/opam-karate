@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter, Archivo, Noto_Serif_JP } from "next/font/google";
 import { AuthProvider } from "@/lib/firebase/auth-context";
 import "./globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
@@ -11,7 +11,28 @@ const inter = Inter({
   display: "swap",
 });
 
+const archivo = Archivo({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-archivo",
+});
+
+const notoSerifJP = Noto_Serif_JP({
+  weight: ["500", "700"],
+  display: "swap",
+  preload: false,
+  variable: "--font-noto-jp",
+});
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#d4232a",
+};
+
 export const metadata: Metadata = {
+  applicationName: "OPAM KARATE",
+  category: "sports",
   title: {
     default: "OPAM KARATE - Tradição, Disciplina e Excelência",
     template: "%s | OPAM KARATE"
@@ -53,20 +74,11 @@ export const metadata: Metadata = {
     siteName: "OPAM KARATE",
     locale: "pt_BR",
     type: "website",
-    images: [
-      {
-        url: "/opam-logo.jpeg",
-        width: 1200,
-        height: 630,
-        alt: "OPAM KARATE - Academia de Karate Shorin Ryu",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "OPAM KARATE - Tradição, Disciplina e Excelência",
     description: "Academia de Karate Shorin Ryu, afiliada à SHINSHUKAN, com mais de 25 anos de tradição.",
-    images: ["/opam-logo.jpeg"],
   },
   robots: {
     index: true,
@@ -79,20 +91,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  icons: {
-    icon: [
-      { url: "/opam-logo.jpeg" },
-      { url: "/opam-logo.jpeg", sizes: "32x32", type: "image/jpeg" },
-      { url: "/opam-logo.jpeg", sizes: "16x16", type: "image/jpeg" },
-    ],
-    apple: [
-      { url: "/opam-logo.jpeg" },
-    ],
-    shortcut: ["/opam-logo.jpeg"],
-  },
-  verification: {
-    google: "google-site-verification-code-here",
-  },
 };
 
 export default function RootLayout({
@@ -104,7 +102,13 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "SportsActivityLocation",
     "name": "OPAM KARATE",
-    "image": "https://opamkarate.com/opam-logo.jpeg",
+    "image": "https://opamkarate.com/opengraph-image",
+    "logo": "https://opamkarate.com/icon",
+    "areaServed": "São Paulo, SP",
+    "founder": { "@type": "Person", "name": "Sensei Bruno Garcia" },
+    "foundingDate": "1999",
+    "knowsAbout": ["Karate Shorin Ryu", "Karate-Do", "Defesa pessoal"],
+    "contactPoint": { "@type": "ContactPoint", "telephone": "+55 11 96939-2260", "contactType": "customer service", "availableLanguage": "Portuguese" },
     "description": "Academia de Karate Shorin Ryu, afiliada à SHINSHUKAN, com mais de 25 anos de tradição em Itaquera, São Paulo.",
     "@id": "https://opamkarate.com",
     "url": "https://opamkarate.com",
@@ -160,9 +164,10 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
       </head>
-      <body className={`${inter.className} antialiased overflow-x-hidden`}>
+      <body
+        className={`${inter.className} ${archivo.variable} ${notoSerifJP.variable} antialiased overflow-x-hidden`}
+      >
         <AuthProvider>
           <SmoothScroll />
           <ConditionalLayout>{children}</ConditionalLayout>

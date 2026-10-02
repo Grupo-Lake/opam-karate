@@ -2,120 +2,173 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
-import { Menu, Trophy } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { NAVIGATION, SOCIALS, TRIAL_LINK } from "@/lib/site";
+import { Kanji } from "@/components/site/ui";
+import { cn } from "@/lib/utils";
 
-const navigation = [
-  { name: "Início", href: "/" },
-  { name: "Sobre", href: "/sobre" },
-  { name: "Turmas", href: "/turmas" },
-  { name: "Horários", href: "/horarios" },
-  { name: "Galeria", href: "/galeria" },
-  { name: "CODEC", href: "/codec" },
-  { name: "Contato", href: "/contato" },
-];
-
-const championship = { name: "Campeonato", href: "/#campeonato" };
+function Brand({ onDark = false, onClick }: { onDark?: boolean; onClick?: () => void }) {
+  return (
+    <Link href="/" onClick={onClick} className="flex items-center gap-2.5 lg:gap-3">
+      <Image
+        src="/opam-logo.jpeg"
+        alt="OPAM Karate"
+        width={44}
+        height={44}
+        className="size-[34px] lg:size-11 rounded-full object-cover"
+        priority
+      />
+      <div className="leading-[1.05]">
+        <div className="text-[15px] lg:text-[17px] font-extrabold lg:tracking-[0.02em]">
+          OPAM{" "}
+          <span className={onDark ? "text-opam-glow" : "text-opam"}>KARATE</span>
+        </div>
+        <div className="hidden lg:block text-[11px] tracking-[0.08em] text-faint">
+          NIN DO RYU · ITAQUERA
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen]);
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname?.startsWith(href);
 
   return (
-    <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-gray-200 z-50">
-      <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 md:h-20">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3">
-            <Image
-              src="/opam-logo.jpeg"
-              alt="OPAM Karate Logo"
-              width={50}
-              height={50}
-              className="rounded-lg"
-            />
-            <div className="text-2xl md:text-3xl font-bold">
-              <span className="text-red-600">OPAM</span>{" "}
-              <span className="text-gray-900">KARATE</span>
-            </div>
-          </Link>
+    <header className="sticky top-0 z-50 bg-paper/95 backdrop-blur border-b border-ink/10">
+      <div className="h-14 lg:h-[76px] px-[18px] lg:px-14 flex items-center justify-between">
+        <Brand />
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-gray-700 hover:text-red-600 font-medium transition-colors"
-              >
-                {item.name}
-              </Link>
-            ))}
+        <nav className="hidden lg:flex gap-[30px] text-sm font-medium" aria-label="Principal">
+          {NAVIGATION.map((item) => (
             <Link
-              href={championship.href}
-              className="inline-flex items-center gap-1.5 text-red-600 hover:text-red-700 font-semibold transition-colors border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-full text-sm"
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "pb-1 transition-colors hover:text-opam",
+                isActive(item.href) &&
+                  "text-opam shadow-[inset_0_-2px_0_var(--color-opam)]",
+              )}
             >
-              <Trophy className="h-3.5 w-3.5" />
-              {championship.name}
+              {item.name}
             </Link>
-            <a
-              href="https://wa.me/5511969392260?text=Olá!%20Gostaria%20de%20informações%20sobre%20as%20aulas%20de%20Karate"
-              target="_blank"
-              rel="noopener noreferrer"
+          ))}
+        </nav>
+
+        <div className="hidden lg:flex items-center gap-3">
+          <a
+            href={TRIAL_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-ink text-paper hover:bg-black text-[13px] font-semibold px-4 py-[9px] rounded-[4px] transition-colors"
+          >
+            Aula grátis
+          </a>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Abrir menu"
+          aria-expanded={isOpen}
+          onClick={() => setIsOpen(true)}
+          className="lg:hidden size-11 -mr-2 flex flex-col items-end justify-center gap-1.5"
+        >
+          <span className="h-0.5 w-[22px] bg-ink" />
+          <span className="h-0.5 w-[15px] bg-ink" />
+        </button>
+      </div>
+
+      {isOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu"
+          className="lg:hidden fixed inset-0 z-[60] bg-ink text-paper flex flex-col overflow-y-auto"
+        >
+          <div className="h-14 shrink-0 px-[18px] flex items-center justify-between border-b border-paper/10">
+            <Brand onDark onClick={() => setIsOpen(false)} />
+            <button
+              type="button"
+              aria-label="Fechar menu"
+              onClick={() => setIsOpen(false)}
+              className="size-11 -mr-2 flex items-center justify-end text-[26px] font-light"
             >
-              <Button className="bg-red-600 hover:bg-red-700">
-                Agende sua Aula
-              </Button>
-            </a>
+              ✕
+            </button>
           </div>
 
-          {/* Mobile Navigation */}
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <nav className="flex flex-col h-full">
-                <div className="flex flex-col space-y-1 mt-8 flex-1">
-                  {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className="text-lg font-medium text-gray-800 hover:text-red-600 hover:bg-red-50 transition-colors px-4 py-3 rounded-lg"
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                  <Link
-                    href={championship.href}
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-2 text-lg font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors px-4 py-3 rounded-lg border border-red-100"
-                  >
-                    <Trophy className="h-4 w-4" />
-                    {championship.name}
-                  </Link>
-                </div>
-                <div className="pt-6 pb-8 border-t border-gray-200">
-                  <a
-                    href="https://wa.me/5511969392260?text=Olá!%20Gostaria%20de%20informações%20sobre%20as%20aulas%20de%20Karate"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block"
-                  >
-                    <Button className="bg-red-600 hover:bg-red-700 w-full text-base font-semibold py-6 shadow-lg">
-                      Agende sua Aula
-                    </Button>
-                  </a>
-                </div>
-              </nav>
-            </SheetContent>
-          </Sheet>
+          <Kanji className="absolute right-3 top-[100px] text-[96px] text-opam/25">
+            空手道
+          </Kanji>
+
+          <nav className="relative px-5 pt-5 flex flex-col" aria-label="Menu móvel">
+            {NAVIGATION.map((item, i) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsOpen(false)}
+                className="flex items-baseline justify-between py-4 border-b border-paper/12"
+              >
+                <span
+                  className={cn(
+                    "text-[34px] font-extrabold tracking-[-0.02em]",
+                    isActive(item.href) && "text-opam-soft",
+                  )}
+                >
+                  {item.name}
+                </span>
+                <span className="text-xs font-bold text-opam-soft">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </Link>
+            ))}
+          </nav>
+
+          <div className="relative mt-auto px-4 pb-[30px] pt-8 flex flex-col gap-2.5">
+            <a
+              href={TRIAL_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-opam text-white text-base font-bold p-[18px] rounded-[5px] text-center"
+            >
+              Agendar aula grátis
+            </a>
+            <Link
+              href="/matricula"
+              onClick={() => setIsOpen(false)}
+              className="border border-paper/30 text-base font-bold p-[17px] rounded-[5px] text-center"
+            >
+              Fazer matrícula
+            </Link>
+            <div className="flex justify-center gap-[22px] text-[13px] text-paper/60 mt-2">
+              {SOCIALS.map((s) => (
+                <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer">
+                  {s.name}
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
-      </nav>
+      )}
     </header>
   );
 }

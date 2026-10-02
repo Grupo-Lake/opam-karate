@@ -1,301 +1,171 @@
-"use client";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
+import Image from "next/image";
+import ContactForm from "@/components/site/ContactForm";
+import { Breadcrumb, Eyebrow } from "@/components/site/ui";
+import { ADDRESS, MAP_EMBED_URL, MAP_ROUTE_URL, TRIAL_LINK } from "@/lib/site";
 
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Mail, Clock, MessageCircle } from "lucide-react";
-import { useState, FormEvent } from "react";
+export const metadata: Metadata = pageMetadata({
+  title: "Contato",
+  description:
+    "Fale com o OPAM KARATE: WhatsApp (11) 96939-2260, e-mail e endereço na R. Sabbado D'Ângelo, 1369, Itaquera, São Paulo. Tire suas dúvidas e agende uma aula experimental.",
+  path: "/contato",
+});
+
+const details = [
+  {
+    label: "Endereço",
+    value: (
+      <>
+        {ADDRESS.street}
+        <br />
+        {ADDRESS.city}
+      </>
+    ),
+    short: `${ADDRESS.street} · Itaquera · SP`,
+  },
+  {
+    label: "WhatsApp",
+    value: (
+      <>
+        <b>(11) 96939-2260</b>
+        <br />
+        Sensei Bruno Garcia
+      </>
+    ),
+    desktopOnly: true,
+  },
+  {
+    label: "E-mail",
+    value: (
+      <>
+        contato@opamkarate.com
+        <br />
+        info@opamkarate.com
+      </>
+    ),
+    desktopOnly: true,
+  },
+  {
+    label: "Atendimento",
+    value: (
+      <>
+        Segunda a Sexta: 14h às 21h
+        <br />
+        Sábado: 9h às 12h
+      </>
+    ),
+    short: "Seg a Sex 14h–21h · Sáb 9h–12h",
+  },
+];
+
+const shortcuts = [
+  { label: "WhatsApp", href: TRIAL_LINK, external: true, primary: true },
+  { label: "Ligar", href: "tel:+5511969392260" },
+  { label: "Rota", href: MAP_ROUTE_URL, external: true },
+];
 
 export default function ContatoPage() {
-  const [formData, setFormData] = useState({
-    nome: "",
-    email: "",
-    telefone: "",
-    assunto: "Aula Experimental",
-    mensagem: "",
-  });
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-
-    // Construir a mensagem para o WhatsApp
-    const mensagemWhatsApp = `Olá! Vim através do site.
-
-*Nome:* ${formData.nome}
-*E-mail:* ${formData.email}
-*Telefone:* ${formData.telefone}
-*Assunto:* ${formData.assunto}
-
-*Mensagem:*
-${formData.mensagem}`;
-
-    // Codificar a mensagem para URL
-    const mensagemCodificada = encodeURIComponent(mensagemWhatsApp);
-
-    // Redirecionar para o WhatsApp
-    window.open(
-      `https://wa.me/5511969392260?text=${mensagemCodificada}`,
-      "_blank",
-    );
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-red-600 to-red-800 text-white pt-24 md:pt-28 pb-12 md:pb-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
-              Entre em Contato
-            </h1>
-            <p className="text-xl md:text-2xl max-w-3xl mx-auto">
-              Estamos prontos para atendê-lo e tirar todas as suas dúvidas
-            </p>
-          </motion.div>
-        </div>
-      </section>
+    <>
+      <section className="px-5 pt-7 pb-6 md:px-14 md:pt-16 md:pb-24 grid md:grid-cols-[1fr_1.05fr] md:gap-16">
+        <div className="flex flex-col gap-3 md:gap-[22px]">
+          <Breadcrumb current="Contato" />
+          <Eyebrow>Fale conosco</Eyebrow>
+          <h1 className="text-[42px] md:text-[72px] leading-[0.98] font-extrabold tracking-[-0.035em]">
+            Entre em contato.
+          </h1>
+          <p className="max-w-[440px] text-base md:text-[19px] leading-[1.5] md:leading-[1.55] text-muted-ink">
+            <span className="md:hidden">Estamos prontos para tirar todas as suas dúvidas.</span>
+            <span className="hidden md:inline">
+              Estamos prontos para atendê-lo e tirar todas as suas dúvidas.
+            </span>
+          </p>
 
-      {/* Contact Info */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {[
-              {
-                icon: MapPin,
-                title: "Endereço",
-                content:
-                  "R. Sabbado D&apos;Ângelo, 1369\nItaquera - São Paulo - SP\nCEP: 08215-545",
-              },
-              {
-                icon: Phone,
-                title: "Telefone / WhatsApp",
-                content: "(11) 96939-2260\nSensei Bruno Garcia",
-              },
-              {
-                icon: Mail,
-                title: "E-mail",
-                content: "contato@opamkarate.com\ninfo@opamkarate.com",
-              },
-              {
-                icon: Clock,
-                title: "Horário de Atendimento",
-                content: "Segunda a Sexta: 14h às 21h\nSábado: 9h às 12h",
-              },
-            ].map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <Card className="h-full hover:shadow-lg transition-shadow text-center">
-                    <CardHeader>
-                      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Icon className="h-8 w-8 text-red-600" />
-                      </div>
-                      <CardTitle className="text-xl">{item.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-700 whitespace-pre-line">
-                        {item.content}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* Contact Form and Map */}
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Contact Form */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-2xl flex items-center">
-                    <MessageCircle className="mr-2 h-6 w-6 text-red-600" />
-                    Envie uma Mensagem
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Nome Completo
-                      </label>
-                      <input
-                        type="text"
-                        name="nome"
-                        value={formData.nome}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
-                        placeholder="Seu nome"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        E-mail
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
-                        placeholder="seu@email.com"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Telefone
-                      </label>
-                      <input
-                        type="tel"
-                        name="telefone"
-                        value={formData.telefone}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
-                        placeholder="(00) 00000-0000"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Assunto
-                      </label>
-                      <select
-                        name="assunto"
-                        value={formData.assunto}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
-                      >
-                        <option>Aula Experimental</option>
-                        <option>Informações sobre Turmas</option>
-                        <option>Valores e Planos</option>
-                        <option>Outros</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Mensagem
-                      </label>
-                      <textarea
-                        name="mensagem"
-                        value={formData.mensagem}
-                        onChange={handleChange}
-                        required
-                        rows={5}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
-                        placeholder="Escreva sua mensagem..."
-                      />
-                    </div>
-
-                    <Button
-                      type="submit"
-                      className="w-full bg-red-600 hover:bg-red-700"
-                    >
-                      Enviar Mensagem via WhatsApp
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Map */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <Card className="h-full">
-                <CardHeader>
-                  <CardTitle className="text-2xl">Localização</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[500px] bg-gray-200 rounded-lg flex items-center justify-center">
-                    {/* Placeholder for map */}
-                    <div className="text-center text-gray-500">
-                      <MapPin className="h-16 w-16 mx-auto mb-4" />
-                      <p className="text-lg font-medium">Mapa de Localização</p>
-                      <p className="text-sm mt-2">
-                        R. Sabbado D&apos;Ângelo, 1369
-                        <br />
-                        Itaquera - São Paulo - SP
-                        <br />
-                        CEP: 08215-545
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* WhatsApp CTA */}
-      <section className="py-16 bg-green-600">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center text-white"
-          >
-            <h2 className="text-4xl font-bold mb-6">
-              Prefere falar pelo WhatsApp?
-            </h2>
-            <p className="text-xl mb-8 max-w-2xl mx-auto">
-              Entre em contato direto com nossa equipe e tire suas dúvidas em
-              tempo real!
-            </p>
-            <a
-              href="https://wa.me/5511969392260?text=Olá!%20Gostaria%20de%20informações%20sobre%20as%20aulas%20de%20Karate"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button
-                size="lg"
-                className="bg-white text-green-600 hover:bg-gray-100 text-lg px-8 py-6"
+          {/* Mobile shortcuts */}
+          <div className="md:hidden grid grid-cols-3 gap-2 mt-2">
+            {shortcuts.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                {...(s.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                className={`rounded-md py-4 px-2.5 text-center text-sm font-bold ${
+                  s.primary ? "bg-opam text-white" : "bg-white"
+                }`}
               >
-                <MessageCircle className="mr-2 h-5 w-5" />
-                Falar no WhatsApp
-              </Button>
-            </a>
-          </motion.div>
+                {s.label}
+              </a>
+            ))}
+          </div>
+
+          {/* Mobile map goes right after the shortcuts */}
+          <div className="md:hidden h-[170px] rounded-md overflow-hidden bg-[#e9e4dc]">
+            <iframe
+              title="Mapa — Academia Cross Fênix"
+              src={MAP_EMBED_URL}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="size-full border-0"
+            />
+          </div>
+
+          <dl className="flex flex-col md:mt-3 border-t-0 md:border-t-2 border-ink">
+            {details.map((d) => (
+              <div
+                key={d.label}
+                className={`md:grid md:grid-cols-[150px_1fr] py-3.5 md:py-[18px] border-b border-ink/12 ${
+                  d.desktopOnly ? "max-md:hidden" : ""
+                }`}
+              >
+                <dt className="text-xs md:text-[13px] font-bold uppercase tracking-[0.08em] text-faint md:pt-[3px]">
+                  {d.label}
+                </dt>
+                <dd className="mt-1 md:mt-0 text-base md:text-[17px] leading-[1.45] md:leading-[1.5]">
+                  <span className="md:hidden">{d.short}</span>
+                  <span className="hidden md:inline">{d.value}</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div className="mt-7 md:mt-0">
+          <ContactForm />
         </div>
       </section>
-    </div>
+
+      {/* Desktop map + photo */}
+      <section className="hidden md:grid grid-cols-[1.6fr_1fr] h-[420px]">
+        <div className="relative bg-[#e9e4dc]">
+          <iframe
+            title="Mapa — Academia Cross Fênix"
+            src={MAP_EMBED_URL}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            className="absolute inset-0 size-full border-0"
+          />
+          <a
+            href={MAP_ROUTE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute left-14 bottom-8 bg-ink hover:bg-black text-white text-sm font-bold px-[18px] py-3.5 rounded-[4px] transition-colors"
+          >
+            Como chegar →
+          </a>
+        </div>
+        <div className="relative">
+          <Image
+            src="/lp/foto-hero.webp"
+            alt="Academia Cross Fênix"
+            fill
+            sizes="35vw"
+            className="object-cover"
+          />
+          <span className="absolute left-5 bottom-5 bg-paper text-[13px] font-bold px-3 py-2 rounded-[3px]">
+            {ADDRESS.venue}
+          </span>
+        </div>
+      </section>
+    </>
   );
 }

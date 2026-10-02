@@ -1,483 +1,297 @@
-"use client";
-
-import { motion } from "framer-motion";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Award, Heart, Target, Users } from "lucide-react";
+import Roots from "@/components/site/Roots";
+import { Breadcrumb, CtaBand, Eyebrow, Kanji, SiteButton } from "@/components/site/ui";
+import { TRIAL_LINK } from "@/lib/site";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Sobre",
+  description:
+    "Fundado em 1999, o OPAM KARATE preserva e difunde os valores tradicionais do Karate Shorin Ryu em Itaquera, São Paulo. Conheça nossa história, raízes, linhagem e instrutor.",
+  path: "/sobre",
+});
+
+const lineage = [
+  { name: "Matsumura Sokon", note: "1800–1890", short: "1800–1890" },
+  { name: "Anko Itosu", note: "1831–1915", short: "1831–1915" },
+  { name: "Choshin Chibana", note: "1885–1969 · nomeia o estilo em 1933", short: "1885–1969" },
+  { name: "Yoshihide Shinzato", note: "1927–2008 · chega ao Brasil em 1954", short: "1927–2008" },
+  { name: "Masahiro Shinzato", note: "União Shorin-Ryu Karate-Do do Brasil", short: null },
+  { name: "OPAM Karate", note: "Itaquera · desde 1999", short: "Itaquera · desde 1999", current: true },
+];
+
+const values = [
+  { title: "Respeito", text: "Respeito ao mestre, aos colegas e a si mesmo." },
+  { title: "Disciplina", text: "Compromisso com o treino e desenvolvimento constante." },
+  { title: "Excelência", text: "Busca contínua pela perfeição técnica e pessoal." },
+  { title: "Comunidade", text: "União e apoio mútuo entre todos os praticantes." },
+];
+
+const stats = [
+  { value: "1999", label: "Fundação do OPAM", mobile: "fundação" },
+  { value: "25+", label: "anos de história", mobile: "anos de história" },
+  { value: "Centenas", label: "de praticantes formados", accent: true },
+];
 
 export default function SobrePage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-red-600 to-red-800 text-white pt-24 md:pt-28 pb-12 md:pb-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
-              Sobre o OPAM KARATE
-            </h1>
-            <p className="text-xl md:text-2xl max-w-3xl mx-auto">
-              Uma história de dedicação, tradição e excelência no ensino de
-              Karate
-            </p>
-          </motion.div>
+    <>
+      {/* Hero */}
+      <section className="grid md:grid-cols-[1.1fr_1fr] md:min-h-[520px]">
+        <div className="px-5 pt-7 pb-6 md:px-14 md:py-16 flex flex-col justify-center gap-3 md:gap-[22px]">
+          <Breadcrumb current="Sobre" />
+          <Eyebrow>
+            <span className="md:hidden">Sobre o OPAM</span>
+            <span className="hidden md:inline">Sobre o OPAM Karate</span>
+          </Eyebrow>
+          <h1 className="text-[38px] md:text-[72px] leading-none md:leading-[0.98] font-extrabold tracking-[-0.035em] text-pretty">
+            Uma história de dedicação, tradição e excelência.
+          </h1>
+          <p className="hidden md:block max-w-[520px] text-[19px] leading-[1.55] text-muted-ink">
+            Fundado em 1999, o OPAM KARATE nasceu do sonho de mestres apaixonados
+            pela arte do Karate Shorin Ryu e comprometidos em preservar e
+            difundir seus valores tradicionais.
+          </p>
+        </div>
+        <div className="relative h-60 md:h-auto">
+          <Image
+            src="/sobre/sobre.webp"
+            alt="Treino de karatê no OPAM"
+            fill
+            priority
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover"
+          />
+          <Kanji className="absolute right-3.5 top-3.5 md:right-7 md:top-7 text-[40px] md:text-[72px] text-paper/85">
+            空手道
+          </Kanji>
         </div>
       </section>
 
       {/* História */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                Nossa História
-              </h2>
-              <div className="space-y-4 text-lg text-gray-700">
-                <p>
-                  Fundado em 1999, o OPAM KARATE nasceu do sonho de mestres
-                  apaixonados pela arte do Karate Shorin Ryu e comprometidos em
-                  preservar e difundir seus valores tradicionais.
-                </p>
-                <p>
-                  Ao longo de mais de 25 anos, nos consolidamos como uma das
-                  principais academias de Karate da região, formando centenas de
-                  praticantes que levam consigo não apenas técnicas marciais,
-                  mas valores para a vida.
-                </p>
-                <p>
-                  Nossa metodologia de ensino une tradição e modernidade,
-                  respeitando os princípios fundamentais do Karate enquanto
-                  adaptamos nosso ensino às necessidades contemporâneas de
-                  nossos alunos.
-                </p>
-                <p>
-                  Localizado na R. Sabbado D&apos;Ângelo, 1369 - Itaquera, São Paulo,
-                  somos reconhecidos como referência em Karate na região,
-                  conforme destacado no{" "}
-                  <a
-                    href="https://itaquera.net.br/sobre/opam-nin-do-ryu-karate"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-red-600 hover:text-red-700 font-semibold"
-                  >
-                    guia de comércios e serviços de Itaquera
-                  </a>
-                  .
-                </p>
+      <section className="px-5 pt-7 pb-2 md:px-14 md:py-24 grid md:grid-cols-[320px_1fr] md:gap-[72px] md:border-b md:border-ink/12">
+        <div className="flex flex-col gap-3.5 md:gap-7">
+          <Eyebrow className="hidden md:block">Nossa história</Eyebrow>
+          <dl className="grid grid-cols-2 md:grid-cols-1 gap-y-7 md:gap-y-7 border-t-2 border-ink md:border-0">
+            {stats.map((s, i) => (
+              <div
+                key={s.value}
+                className={`pt-2.5 md:pt-3.5 md:border-t ${
+                  i === 0 ? "md:border-t-2 md:border-ink" : "md:border-ink/15"
+                } ${i === 1 ? "pl-3.5 border-l border-ink/15 md:pl-0 md:border-l-0" : ""} ${
+                  s.accent ? "max-md:hidden" : ""
+                }`}
+              >
+                <dd
+                  className={`text-[30px] md:text-[44px] font-extrabold tracking-[-0.03em] ${
+                    s.accent ? "text-opam" : ""
+                  }`}
+                >
+                  {s.value}
+                </dd>
+                <dt className="text-[13px] md:text-sm text-faint">
+                  <span className="md:hidden">{s.mobile ?? s.label}</span>
+                  <span className="hidden md:inline">{s.label}</span>
+                </dt>
               </div>
-            </motion.div>
+            ))}
+          </dl>
+        </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-              className="relative h-[400px] rounded-lg overflow-hidden shadow-2xl"
+        <div className="mt-5 md:mt-0 flex flex-col gap-[22px] md:text-xl leading-[1.6] text-body max-w-[720px]">
+          <p className="md:hidden text-base">
+            Fundado em 1999, o OPAM KARATE nasceu do sonho de mestres
+            apaixonados pela arte do Karate Shorin Ryu e comprometidos em
+            preservar e difundir seus valores tradicionais.
+          </p>
+          <p className="hidden md:block text-[30px] leading-[1.3] font-semibold text-ink tracking-[-0.015em] text-pretty">
+            Ao longo de mais de 25 anos, nos consolidamos como uma das
+            principais academias de Karate da região, formando centenas de
+            praticantes que levam consigo não apenas técnicas marciais, mas
+            valores para a vida.
+          </p>
+          <p className="hidden md:block">
+            Nossa metodologia de ensino une tradição e modernidade, respeitando
+            os princípios fundamentais do Karate enquanto adaptamos nosso ensino
+            às necessidades contemporâneas de nossos alunos.
+          </p>
+          <p className="hidden md:block">
+            Localizado na R. Sabbado D&apos;Ângelo, 1369 — Itaquera, São Paulo,
+            somos reconhecidos como referência em Karate na região, conforme
+            destacado no{" "}
+            <a
+              href="https://itaquera.net.br/sobre/opam-nin-do-ryu-karate"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-opam font-semibold hover:underline"
             >
-              <Image
-                src="/sobre/sobre.webp"
-                alt="OPAM Karate Dojo"
-                fill
-                className="object-cover"
+              guia de comércios e serviços de Itaquera
+            </a>
+            .
+          </p>
+        </div>
+      </section>
+
+      {/* Raízes */}
+      <section className="px-5 pt-9 md:px-14 md:py-24">
+        <Eyebrow>Nossas raízes</Eyebrow>
+        <h2 className="hidden md:block mt-2.5 mb-10 text-[52px] font-extrabold tracking-[-0.03em]">
+          O caminho que seguimos.
+        </h2>
+        <div className="mt-3.5 md:mt-0">
+          <Roots />
+        </div>
+      </section>
+
+      {/* Linhagem */}
+      <section className="mt-9 md:mt-0 bg-ink text-paper px-5 py-7 md:px-14 md:py-[72px]">
+        <Eyebrow tone="dark">
+          <span className="md:hidden">Linhagem</span>
+          <span className="hidden md:inline">Linhagem Shorin-Ryu</span>
+        </Eyebrow>
+
+        {/* Desktop timeline */}
+        <ol className="hidden md:grid grid-cols-6 mt-8 relative">
+          <div className="absolute inset-x-0 top-[7px] h-px bg-paper/25" />
+          {lineage.map((l) => (
+            <li key={l.name} className="relative flex flex-col gap-3 pr-5">
+              <span
+                className={
+                  l.current
+                    ? "size-[15px] rounded-full bg-opam shadow-[0_0_0_5px_rgba(212,35,42,0.3)]"
+                    : "size-[15px] rounded-full bg-paper"
+                }
               />
-              {/* Overlay com caracteres japoneses */}
-              <div className="absolute top-4 right-4 text-white text-5xl font-bold opacity-30 mix-blend-overlay">
-                空手道
+              <div className={`text-lg font-bold ${l.current ? "text-opam-soft" : ""}`}>
+                {l.name}
               </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+              <div className="text-sm text-paper/60">{l.note}</div>
+            </li>
+          ))}
+        </ol>
 
-      {/* O que é o Karate-Do */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-8 text-center">
-              O que é o Karate-Do?
-            </h2>
-            <Card className="bg-gradient-to-br from-gray-50 to-white">
-              <CardContent className="p-8 space-y-4 text-gray-700 text-lg">
-                <p>
-                  O <strong>Karate-Do</strong> (空手道 - &quot;caminho das mãos
-                  vazias&quot;) é uma arte marcial que se desenvolveu em Okinawa,
-                  Japão, como meio de autodefesa. Ao longo do tempo, na luta
-                  pela sobrevivência, o ser humano procurou meios de defesa para
-                  vencer as adversidades, e em Okinawa se desenvolveu esta arte
-                  inicialmente chamada &quot;TE&quot; (Mão).
-                </p>
-                <p>
-                  Esta luta ensinava o praticante a enfrentar sem armas o seu
-                  adversário. Por duas vezes houve proibição do uso de armas em
-                  Okinawa, o que fez com que o Karate-Do assumisse maior valor
-                  como meio de defesa eficaz contra adversários armados.
-                </p>
-                <p>
-                  Mais do que uma técnica de combate, o Karate-Do é um caminho
-                  de desenvolvimento pessoal que busca o aperfeiçoamento do
-                  caráter através da disciplina física e mental, promovendo
-                  valores como respeito, humildade, autocontrole e perseverança.
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* O que é Shorin Ryu */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-8 text-center">
-              O que é Shorin Ryu?
-            </h2>
-            <Card className="bg-gradient-to-br from-white to-gray-50">
-              <CardContent className="p-8 space-y-4 text-gray-700 text-lg">
-                <p>
-                  <strong>Shorin-Ryu</strong> (少林流) é um estilo de Karate-Do
-                  que combina técnicas marciais provenientes da China com
-                  elementos advindos de estilos de luta tradicionais de Okinawa.
-                  Shorin é a pronúncia okinawana da palavra Shaolin – monastério
-                  budista localizado na província chinesa de Henan –, e que
-                  significa &quot;pequeno bosque&quot;. Considerando que &quot;ryu&quot; significa
-                  estilo, a tradução para Shorin-Ryu é &quot;estilo do pequeno
-                  bosque&quot;, uma homenagem ao monastério chinês.
-                </p>
-                <p>
-                  O estilo se desenvolveu a partir do Shuri-Te, praticado na
-                  região de Shuri em Okinawa. O Karate-Do se desenvolveu em três
-                  locais diferentes: Shuri-Te, Naha-Te e Tomari-Te, sendo que
-                  Shuri-Te e Tomari-Te deram origem ao estilo Shorin.
-                </p>
-                <p>
-                  A linhagem inclui grandes mestres como Matsumura Sokon
-                  (1800-1890), Anko Itosu (1831-1915) e Choshin Chibana
-                  (1885-1969), que em 1933 escolheu denominar de Shorin-Ryu o
-                  estilo marcial como forma de diferenciá-lo de outros estilos e
-                  como homenagem às raízes chinesas.
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* O que é a SHINSHUKAN */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-8 text-center">
-              O que é a SHINSHUKAN?
-            </h2>
-            <Card className="bg-gradient-to-br from-red-50 to-white border-l-4 border-red-600">
-              <CardContent className="p-8 space-y-4 text-gray-700 text-lg">
-                <p>
-                  A <strong>SHINSHUKAN</strong> é uma das mais respeitadas
-                  organizações de Karate Shorin Ryu do Brasil, fundada pelo
-                  Mestre Yoshihide Shinzato (1927-2008), pioneiro na difusão do
-                  estilo Shorin-Ryu em nosso país.
-                </p>
-                <p>
-                  Sensei Shinzato, Hanshi (grão-mestre) 10º Dan de Karate e 9º
-                  Dan de Kobudo, chegou ao Brasil em 15 de janeiro de 1954 e
-                  começou a ensinar Karate-Do aos membros da colônia japonesa.
-                  Em 1954, na cerimônia de inauguração do Parque Ibirapuera em
-                  São Paulo, fez demonstrações públicas de Karate e Kobudo,
-                  contribuindo significativamente para a difusão desta nobre
-                  arte marcial.
-                </p>
-                <p>
-                  Em 1962, fundou seu primeiro Dojô em Santos, a Academia
-                  Santista de Karate-Do, que em 1965 viria a se chamar
-                  Associação Okinawa Shorin-Ryu Karate-Do do Brasil. Em 1967,
-                  fundou a União Shorin-Ryu Karate-Do do Brasil, organização que
-                  continua a difundir o Karate da escola Shorin-Ryu sob a
-                  liderança do Mestre Masahiro Shinzato, seu filho primogênito.
-                </p>
-                <p className="font-semibold text-red-700">
-                  A filiação à SHINSHUKAN garante aos nossos alunos graduações
-                  reconhecidas nacional e internacionalmente, além de acesso a
-                  treinamentos, seminários e eventos com mestres de todo o
-                  Brasil.
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+        {/* Mobile list */}
+        <ol className="md:hidden mt-4 flex flex-col gap-4 border-l border-paper/25 pl-[18px]">
+          {lineage
+            .filter((l) => l.short)
+            .map((l) => (
+              <li key={l.name}>
+                <div className={`text-base font-bold ${l.current ? "text-opam-soft" : ""}`}>
+                  {l.name}
+                </div>
+                <div className="text-[13px] text-paper/60">{l.short}</div>
+              </li>
+            ))}
+        </ol>
       </section>
 
       {/* Valores */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Nossos Valores
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Os princípios que guiam nossa academia e nossos alunos
-            </p>
-          </motion.div>
+      <section className="hidden md:block px-14 py-24">
+        <Eyebrow>Nossos valores</Eyebrow>
+        <h2 className="mt-2.5 mb-10 text-[52px] font-extrabold tracking-[-0.03em]">
+          Os princípios que guiam nossa academia.
+        </h2>
+        <ol className="grid grid-cols-4 border-t-2 border-ink">
+          {values.map((v, i) => (
+            <li
+              key={v.title}
+              className={`pt-7 ${i === 0 ? "pr-6" : "px-6 border-l border-ink/15"}`}
+            >
+              <div className="text-[13px] font-bold text-opam">
+                {String(i + 1).padStart(2, "0")}
+              </div>
+              <div className="text-2xl font-bold mt-2.5 mb-2">{v.title}</div>
+              <div className="text-base leading-[1.5] text-muted-ink">{v.text}</div>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                icon: Heart,
-                title: "Respeito",
-                description: "Respeito ao mestre, aos colegas e a si mesmo",
-              },
-              {
-                icon: Target,
-                title: "Disciplina",
-                description:
-                  "Compromisso com o treino e desenvolvimento constante",
-              },
-              {
-                icon: Award,
-                title: "Excelência",
-                description: "Busca contínua pela perfeição técnica e pessoal",
-              },
-              {
-                icon: Users,
-                title: "Comunidade",
-                description: "União e apoio mútuo entre todos os praticantes",
-              },
-            ].map((value, index) => {
-              const Icon = value.icon;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <Card className="h-full text-center hover:shadow-lg transition-shadow">
-                    <CardContent className="pt-6">
-                      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Icon className="h-8 w-8 text-red-600" />
-                      </div>
-                      <h3 className="text-xl font-bold mb-2">{value.title}</h3>
-                      <p className="text-gray-600">{value.description}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
+      {/* Instrutor */}
+      <section className="px-5 py-9 md:px-14 md:py-0 md:mb-0">
+        <div className="md:grid md:grid-cols-[400px_1fr] md:bg-white md:rounded-md overflow-hidden">
+          <div className="relative h-[280px] md:h-auto md:min-h-[460px] rounded-md md:rounded-none overflow-hidden">
+            <Image
+              src="/bruno.jpeg"
+              alt="Sensei Bruno Garcia"
+              fill
+              sizes="(min-width: 768px) 400px, 100vw"
+              className="object-cover"
+            />
+          </div>
+          <div className="mt-3 md:mt-0 md:p-14 flex flex-col gap-3 md:gap-[18px]">
+            <Eyebrow className="mt-1.5 md:mt-0">Instrutor principal</Eyebrow>
+            <h2 className="text-[26px] md:text-[44px] font-extrabold tracking-[-0.02em] md:tracking-[-0.03em]">
+              Sensei Bruno Garcia
+            </h2>
+            <p className="text-[15px] md:text-[17px] leading-[1.55] md:leading-[1.6] text-muted-ink">
+              <span className="md:hidden">
+                Faixa preta graduado, com certificação reconhecida por federações
+                nacionais e internacionais.
+              </span>
+              <span className="hidden md:inline">
+                Nossa equipe é formada por faixas pretas graduadas, com anos de
+                experiência no ensino do Karate Shorin Ryu e certificação
+                reconhecida por federações nacionais e internacionais.
+              </span>
+            </p>
+            <p className="hidden md:block text-[17px] leading-[1.6] text-muted-ink">
+              Além da formação técnica, são educadores comprometidos com o
+              desenvolvimento integral de cada aluno — e participam ativamente do
+              Congresso CODEC.
+            </p>
+            <SiteButton href={TRIAL_LINK} external className="hidden md:inline-flex self-start mt-1.5">
+              Treinar com o Sensei Bruno →
+            </SiteButton>
           </div>
         </div>
       </section>
 
-      {/* Instrutores */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
+      {/* Filiação e parceria */}
+      <section className="hidden md:grid grid-cols-2 gap-5 px-14 py-24">
+        <div className="border border-ink/15 rounded-md p-10 flex flex-col gap-3.5">
+          <Eyebrow>Filiação</Eyebrow>
+          <div className="text-[32px] font-extrabold tracking-[-0.02em]">SHINSHUKAN</div>
+          <p className="text-base leading-[1.55] text-muted-ink">
+            Treinamento nos mais altos padrões técnicos e pedagógicos, com acesso
+            a eventos, campeonatos e exames de faixa oficialmente reconhecidos.
+          </p>
+          <a
+            href="https://shinshukan.com.br/site/filiados-shinshukan/opam-itaquera/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[15px] font-bold hover:text-opam"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Nossos Instrutores
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Equipe qualificada e experiente dedicada ao seu desenvolvimento
-            </p>
-          </motion.div>
-
-          <div className="max-w-4xl mx-auto">
-            <Card>
-              <CardContent className="p-8">
-                <div className="flex flex-col md:flex-row gap-8 items-start">
-                  <div className="w-full md:w-1/3 flex-shrink-0">
-                    <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-lg">
-                      <Image
-                        src="/bruno.jpeg"
-                        alt="Sensei Bruno Garcia"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="mt-4 text-center">
-                      <h3 className="font-bold text-xl text-gray-900">
-                        Sensei Bruno Garcia
-                      </h3>
-                      <p className="text-red-600 font-semibold">
-                        Instrutor Principal
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex-1 space-y-4 text-gray-700">
-                    <p className="text-lg">
-                      Nossa equipe de instrutores é formada por faixas pretas
-                      graduadas, com anos de experiência no ensino do Karate
-                      Shorin Ryu. Todos possuem certificação reconhecida por
-                      federações nacionais e internacionais.
-                    </p>
-                    <p className="text-lg">
-                      Além da formação técnica, nossos mestres são educadores
-                      comprometidos com o desenvolvimento integral de cada
-                      aluno, respeitando suas individualidades e potencializando
-                      suas capacidades.
-                    </p>
-                    <p className="text-lg">
-                      Com participação regular em cursos, seminários e
-                      competições, mantemos nossa equipe sempre atualizada com
-                      as melhores práticas pedagógicas e técnicas do Karate
-                      mundial.
-                    </p>
-                    <p className="text-lg">
-                      Nossos instrutores participam ativamente de eventos como o{" "}
-                      <a
-                        href="https://congressocodec.com.br/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-red-600 hover:text-red-700 font-semibold underline"
-                      >
-                        Congresso CODEC
-                      </a>{" "}
-                      (Congresso de Desenvolvimento nos Esportes de Contato),
-                      mantendo-se atualizados com as práticas mais modernas de
-                      ensino e inclusão nas artes marciais.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+            Ver página oficial →
+          </a>
+        </div>
+        <div className="border border-ink/15 rounded-md p-10 flex flex-col gap-3.5">
+          <Eyebrow>Parceria</Eyebrow>
+          <div className="text-[32px] font-extrabold tracking-[-0.02em]">Congresso CODEC</div>
+          <p className="text-base leading-[1.55] text-muted-ink">
+            Congresso de Desenvolvimento nos Esportes de Contato: métodos de
+            ensino, inclusão social e práticas inovadoras nas artes marciais.
+          </p>
+          <a
+            href="/codec"
+            className="text-[15px] font-bold hover:text-opam"
+          >
+            Conheça o CODEC →
+          </a>
         </div>
       </section>
 
-      {/* CODEC Section */}
-      <section className="py-16 bg-gradient-to-r from-red-600 to-red-800 text-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <h2 className="text-4xl font-bold mb-6">
-              Parceiro do Congresso CODEC
-            </h2>
-            <p className="text-xl mb-8 max-w-3xl mx-auto">
-              O OPAM KARATE participa ativamente do Congresso de Desenvolvimento
-              nos Esportes de Contato (CODEC), um evento que promove a discussão
-              sobre métodos de ensino, inclusão social e práticas inovadoras nas
-              artes marciais.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a
-                href="https://congressocodec.com.br/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block"
-              >
-                <Button
-                  size="lg"
-                  className="bg-white text-red-600 hover:bg-gray-100"
-                >
-                  Conheça o CODEC
-                </Button>
-              </a>
-            </div>
-            <p className="text-sm mt-6 opacity-90">
-              📅 Evento anual dedicado ao desenvolvimento técnico e pedagógico
-              nas artes marciais
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* SHINSHUKAN Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Filiação <span className="text-red-600">SHINSHUKAN</span>
-              </h2>
-              <div className="w-20 h-1 bg-red-600 mx-auto mb-6" />
-            </div>
-
-            <Card className="bg-gradient-to-br from-gray-50 to-white">
-              <CardContent className="p-8">
-                <div className="space-y-6">
-                  <p className="text-lg text-gray-700 text-center">
-                    O OPAM KARATE é oficialmente filiado à{" "}
-                    <strong>SHINSHUKAN</strong>, uma das mais respeitadas
-                    organizações de Karate Shorin Ryu do Brasil, garantindo o
-                    reconhecimento e validade de nossas graduações em âmbito
-                    nacional e internacional.
-                  </p>
-
-                  <div className="bg-red-50 p-6 rounded-lg border-l-4 border-red-600">
-                    <p className="text-gray-700">
-                      A filiação à SHINSHUKAN assegura que nossos alunos recebam
-                      treinamento de acordo com os mais altos padrões técnicos e
-                      pedagógicos, além de acesso a eventos, campeonatos e
-                      exames de faixa oficialmente reconhecidos.
-                    </p>
-                  </div>
-
-                  <div className="text-center">
-                    <a
-                      href="https://shinshukan.com.br/site/filiados-shinshukan/opam-itaquera/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button size="lg" className="bg-red-600 hover:bg-red-700">
-                        Ver Página Oficial na SHINSHUKAN
-                      </Button>
-                    </a>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
-    </div>
+      <CtaBand
+        title={
+          <>
+            Pronto para começar
+            <br className="hidden md:block" /> sua jornada?
+          </>
+        }
+        primary={{ label: "Agendar aula grátis", href: TRIAL_LINK, external: true }}
+        secondary={{ label: "Fazer matrícula", href: "/matricula" }}
+      />
+    </>
   );
 }
