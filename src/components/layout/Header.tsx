@@ -8,9 +8,19 @@ import { NAVIGATION, SOCIALS, TRIAL_LINK } from "@/lib/site";
 import { Kanji } from "@/components/site/ui";
 import { cn } from "@/lib/utils";
 
-function Brand({ onDark = false, onClick }: { onDark?: boolean; onClick?: () => void }) {
+function Brand({
+  onDark = false,
+  onClick,
+}: {
+  onDark?: boolean;
+  onClick?: () => void;
+}) {
   return (
-    <Link href="/" onClick={onClick} className="flex items-center gap-2.5 lg:gap-3">
+    <Link
+      href="/"
+      onClick={onClick}
+      className="flex items-center gap-2.5 lg:gap-3"
+    >
       <Image
         src="/opam-logo.jpeg"
         alt="OPAM Karate"
@@ -22,7 +32,9 @@ function Brand({ onDark = false, onClick }: { onDark?: boolean; onClick?: () => 
       <div className="leading-[1.05]">
         <div className="text-[15px] lg:text-[17px] font-extrabold lg:tracking-[0.02em]">
           OPAM{" "}
-          <span className={onDark ? "text-opam-glow" : "text-opam"}>KARATE</span>
+          <span className={onDark ? "text-opam-glow" : "text-opam"}>
+            KARATE
+          </span>
         </div>
         <div className="hidden lg:block text-[11px] tracking-[0.08em] text-faint">
           NIN DO RYU · ITAQUERA
@@ -54,49 +66,55 @@ export default function Header() {
     href === "/" ? pathname === "/" : pathname?.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-50 bg-paper/95 backdrop-blur border-b border-ink/10">
-      <div className="h-14 lg:h-[76px] px-[18px] lg:px-14 flex items-center justify-between">
-        <Brand />
+    <>
+      <header className="sticky top-0 z-50 bg-paper/95 backdrop-blur border-b border-ink/10">
+        <div className="h-14 lg:h-[76px] px-[18px] lg:px-14 flex items-center justify-between">
+          <Brand />
 
-        <nav className="hidden lg:flex gap-[30px] text-sm font-medium" aria-label="Principal">
-          {NAVIGATION.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "pb-1 transition-colors hover:text-opam",
-                isActive(item.href) &&
-                  "text-opam shadow-[inset_0_-2px_0_var(--color-opam)]",
-              )}
-            >
-              {item.name}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="hidden lg:flex items-center gap-3">
-          <a
-            href={TRIAL_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-ink text-paper hover:bg-black text-[13px] font-semibold px-4 py-[9px] rounded-[4px] transition-colors"
+          <nav
+            className="hidden lg:flex gap-[30px] text-sm font-medium"
+            aria-label="Principal"
           >
-            Aula grátis
-          </a>
+            {NAVIGATION.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "pb-1 transition-colors hover:text-opam",
+                  isActive(item.href) &&
+                    "text-opam shadow-[inset_0_-2px_0_var(--color-opam)]",
+                )}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="hidden lg:flex items-center gap-3">
+            <a
+              href={TRIAL_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-ink text-paper hover:bg-black text-[13px] font-semibold px-4 py-[9px] rounded-[4px] transition-colors"
+            >
+              Aula grátis
+            </a>
+          </div>
+
+          <button
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded={isOpen}
+            onClick={() => setIsOpen(true)}
+            className="lg:hidden size-11 -mr-2 flex flex-col items-end justify-center gap-1.5"
+          >
+            <span className="h-0.5 w-[22px] bg-ink" />
+            <span className="h-0.5 w-[15px] bg-ink" />
+          </button>
         </div>
+      </header>
 
-        <button
-          type="button"
-          aria-label="Abrir menu"
-          aria-expanded={isOpen}
-          onClick={() => setIsOpen(true)}
-          className="lg:hidden size-11 -mr-2 flex flex-col items-end justify-center gap-1.5"
-        >
-          <span className="h-0.5 w-[22px] bg-ink" />
-          <span className="h-0.5 w-[15px] bg-ink" />
-        </button>
-      </div>
-
+      {/* Fora do <header>: o backdrop-blur dele prenderia o overlay `fixed` à altura da barra */}
       {isOpen && (
         <div
           role="dialog"
@@ -120,7 +138,10 @@ export default function Header() {
             空手道
           </Kanji>
 
-          <nav className="relative px-5 pt-5 flex flex-col" aria-label="Menu móvel">
+          <nav
+            className="relative px-5 pt-5 flex flex-col"
+            aria-label="Menu móvel"
+          >
             {NAVIGATION.map((item, i) => (
               <Link
                 key={item.href}
@@ -161,7 +182,12 @@ export default function Header() {
             </Link>
             <div className="flex justify-center gap-[22px] text-[13px] text-paper/60 mt-2">
               {SOCIALS.map((s) => (
-                <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer">
+                <a
+                  key={s.name}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {s.name}
                 </a>
               ))}
@@ -169,6 +195,6 @@ export default function Header() {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }
