@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import StickyTrialBar from "@/components/site/StickyTrialBar";
 
 export default function ConditionalLayout({
   children,
@@ -17,14 +18,13 @@ export default function ConditionalLayout({
     return <>{children}</>;
   }
 
-  // Páginas públicas têm Header e Footer
+  // Páginas públicas: sistema visual "papel e tinta" do redesign
   return (
-    <>
+    <div className="font-display bg-paper text-ink min-h-screen">
       <Header />
-      <main className="pt-16 md:pt-20 overflow-x-hidden">
-        {children}
-      </main>
+      <main className="overflow-x-hidden">{children}</main>
       <Footer />
-    </>
+      <StickyTrialBar />
+    </div>
   );
 }

@@ -63,7 +63,7 @@ function formatPrice(amount: number): string {
 
 function StepNumber({ n }: { n: number }) {
   return (
-    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
+    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-opam text-xs font-bold text-white">
       {n}
     </span>
   );
@@ -79,10 +79,10 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm flex flex-col gap-5">
+    <div className="rounded-md border border-ink/15 bg-white p-6 shadow-sm flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <StepNumber n={step} />
-        <h2 className="font-semibold text-gray-900">{title}</h2>
+        <h2 className="font-semibold text-ink">{title}</h2>
       </div>
       {children}
     </div>
@@ -104,7 +104,7 @@ function ClauseBox({
 }) {
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg bg-gray-50 border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed">
+      <div className="rounded-lg bg-paper border border-ink/15 p-4 text-sm text-gray-700 leading-relaxed">
         {children}
       </div>
       <label
@@ -112,7 +112,7 @@ function ClauseBox({
         className={`flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors ${
           checked
             ? "border-green-400 bg-green-50"
-            : "border-gray-200 hover:border-gray-300 bg-white"
+            : "border-ink/15 hover:border-gray-300 bg-white"
         }`}
       >
         <input
@@ -121,10 +121,10 @@ function ClauseBox({
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
           required
-          className="mt-0.5 h-4 w-4 shrink-0 accent-red-600 cursor-pointer"
+          className="mt-0.5 h-4 w-4 shrink-0 accent-[#d4232a] cursor-pointer"
         />
         <span className="text-sm font-medium text-gray-800">
-          {label} <span className="text-red-500">*</span>
+          {label} <span className="text-opam">*</span>
         </span>
       </label>
     </div>
@@ -233,7 +233,7 @@ export default function RegistrationForm() {
           <CheckCircle className="h-16 w-16 text-green-600" />
         </div>
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-3">
+          <h2 className="text-3xl font-bold text-ink mb-3">
             Matrícula enviada!
           </h2>
           <p className="text-gray-600 max-w-md text-lg">
@@ -275,7 +275,7 @@ export default function RegistrationForm() {
       noValidate={false}
     >
       {error && (
-        <div className="rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-800">
+        <div className="rounded-md bg-red-50 border border-red-200 p-4 text-sm text-red-800">
           <strong>Erro:</strong> {error}
         </div>
       )}
@@ -337,7 +337,7 @@ export default function RegistrationForm() {
 
         <div className="flex flex-col gap-2">
           <Label className="text-sm font-medium text-gray-800">
-            Selecione seu plano <span className="text-red-500">*</span>
+            Selecione seu plano <span className="text-opam">*</span>
           </Label>
 
           {plans.length === 0 ? (
@@ -354,10 +354,10 @@ export default function RegistrationForm() {
                     <label
                       key={`${plan.id}-${price.id}`}
                       htmlFor={`plan-${plan.id}-${price.id}`}
-                      className={`flex items-start gap-3 rounded-xl border p-4 cursor-pointer transition-all ${
+                      className={`flex items-start gap-3 rounded-md border p-4 cursor-pointer transition-all ${
                         isSelected
                           ? "border-red-500 bg-red-50 shadow-sm"
-                          : "border-gray-200 bg-white hover:border-gray-300"
+                          : "border-ink/15 bg-white hover:border-gray-300"
                       }`}
                     >
                       <input
@@ -368,18 +368,18 @@ export default function RegistrationForm() {
                         checked={isSelected}
                         onChange={() => set("subscriptionPlanId", plan.id)}
                         required
-                        className="mt-0.5 h-4 w-4 shrink-0 accent-red-600"
+                        className="mt-0.5 h-4 w-4 shrink-0 accent-[#d4232a]"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-baseline gap-2">
-                          <span className="font-semibold text-gray-900 text-sm">
+                          <span className="font-semibold text-ink text-sm">
                             {plan.name}
                           </span>
                           <span className="text-xs text-gray-500">
                             {billingLabels[price.billingPeriod]}
                           </span>
                           <span
-                            className={`ml-auto font-bold text-sm ${isSelected ? "text-red-600" : "text-gray-700"}`}
+                            className={`ml-auto font-bold text-sm ${isSelected ? "text-opam" : "text-gray-700"}`}
                           >
                             {formatPrice(price.amount)}
                           </span>
@@ -435,7 +435,7 @@ export default function RegistrationForm() {
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="reg-fullName">
-              Nome completo <span className="text-red-500">*</span>
+              Nome completo <span className="text-opam">*</span>
             </Label>
             <Input
               id="reg-fullName"
@@ -448,7 +448,7 @@ export default function RegistrationForm() {
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="reg-birthDate">
-              Data de nascimento <span className="text-red-500">*</span>
+              Data de nascimento <span className="text-opam">*</span>
             </Label>
             <Input
               id="reg-birthDate"
@@ -463,7 +463,7 @@ export default function RegistrationForm() {
         {/* Endereço */}
         <div className="flex flex-col gap-4 pt-4 border-t">
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            Endereço <span className="text-red-500">*</span>
+            Endereço <span className="text-opam">*</span>
           </h3>
 
           <div className="flex flex-col gap-1.5">
@@ -523,7 +523,7 @@ export default function RegistrationForm() {
                       : { fullName: "", birthDate: "", phone: "" },
                   }))
                 }
-                className="text-xs text-red-600 hover:underline underline-offset-2"
+                className="text-xs text-opam hover:underline underline-offset-2"
               >
                 {form.guardian ? "Remover" : "Adicionar responsável"}
               </button>
@@ -535,7 +535,7 @@ export default function RegistrationForm() {
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="reg-guardianName">
                   Nome completo do responsável
-                  {isMinor && <span className="text-red-500"> *</span>}
+                  {isMinor && <span className="text-opam"> *</span>}
                 </Label>
                 <Input
                   id="reg-guardianName"
@@ -549,7 +549,7 @@ export default function RegistrationForm() {
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="reg-guardianBirthDate">
                   Data de nascimento do responsável
-                  {isMinor && <span className="text-red-500"> *</span>}
+                  {isMinor && <span className="text-opam"> *</span>}
                 </Label>
                 <Input
                   id="reg-guardianBirthDate"
@@ -563,7 +563,7 @@ export default function RegistrationForm() {
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="reg-guardianPhone">
                   Celular para contato (WhatsApp)
-                  {isMinor && <span className="text-red-500"> *</span>}
+                  {isMinor && <span className="text-opam"> *</span>}
                 </Label>
                 <Input
                   id="reg-guardianPhone"
@@ -601,7 +601,7 @@ export default function RegistrationForm() {
         type="submit"
         disabled={loading}
         size="lg"
-        className="w-full bg-red-600 hover:bg-red-700 text-white text-base py-6 mt-2"
+        className="w-full bg-opam hover:bg-opam-dark text-white text-base py-6 mt-2"
       >
         {loading ? (
           <>

@@ -1,130 +1,73 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import Image from "next/image";
+import { Eyebrow, Kanji } from "@/components/site/ui";
+import TrialForm from "@/components/site/TrialForm";
+
+const stats = [
+  { value: "25+", label: "anos de experiência", short: "anos" },
+  { value: "5+", label: "faixas pretas", short: "faixas pretas" },
+  { value: "100+", label: "medalhas", short: "medalhas" },
+];
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        <Image
-          src="/lp/foto-hero.webp"
-          alt="Karate OPAM"
-          fill
-          priority
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-linear-to-brbg-linear-to-br from-gray-900/80 via-gray-800/70 to-red-900/80" />
-      </div>
+    <section className="relative">
+      {/* Altura: preenche a tela (menos o header) em qualquer dispositivo */}
+      <div className="grid md:grid-cols-2 md:min-h-[max(560px,calc(100svh-76px-96px))] lg:min-h-[max(640px,calc(100svh-76px-56px-96px))]">
+        <div className="order-2 md:order-1 relative flex flex-col justify-center gap-4 md:gap-6 px-5 pt-8 md:px-8 lg:px-14 md:py-16 lg:pt-[72px] lg:pb-[140px]">
+          <Kanji className="absolute right-3.5 top-6 md:right-4 lg:right-6 md:top-10 lg:top-12 text-[64px] md:text-[96px] lg:text-[140px] text-opam/[0.12] lg:text-opam/10">
+            空手道
+          </Kanji>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center text-white">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="text-3xl md:text-4xl lg:text-5xl mb-2 opacity-80 font-light tracking-widest">
-              空手道
-            </div>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6">
-              <span className="text-red-500">OPAM</span> KARATE
-            </h1>
-          </motion.div>
+          <Eyebrow>Matrículas abertas</Eyebrow>
+          <h1 className="relative text-[46px] sm:text-[56px] md:text-[56px] lg:text-[80px] xl:text-[88px] leading-[0.98] font-extrabold tracking-[-0.035em] max-md:max-w-[88%]">
+            Comece sua jornada no karatê.
+          </h1>
+          <p className="max-w-[460px] lg:max-w-[500px] text-base md:text-[17px] lg:text-xl leading-[1.5] lg:leading-[1.55] text-muted-ink text-pretty">
+            Disciplina, respeito e evolução contínua. O karatê transforma não só
+            o corpo, mas o caráter. Treine com o Sensei Bruno.
+          </p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-xl md:text-2xl lg:text-3xl mb-4 text-gray-200"
-          >
-            Tradição, Disciplina e Excelência
-          </motion.p>
-
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-lg md:text-xl mb-8 text-gray-300 max-w-3xl mx-auto"
-          >
-            Desenvolva seu corpo, mente e espírito através da arte marcial mais
-            respeitada do mundo. Junte-se ao nosso dojo e transforme sua vida!
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          >
-            <a
-              href="https://wa.me/5511969392260?text=Olá!%20Gostaria%20de%20agendar%20uma%20aula%20grátis%20de%20Karate"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button
-                size="lg"
-                className="bg-red-600 hover:bg-red-700 text-lg px-8 py-6"
+          <dl className="grid grid-cols-3 md:flex md:gap-6 lg:gap-8 border-t-2 border-ink md:border-0 mt-1 md:mt-3">
+            {stats.map((s, i) => (
+              <div
+                key={s.value}
+                className={
+                  i === 0
+                    ? "pt-2.5 md:pt-0"
+                    : "pt-2.5 pl-3 border-l border-ink/15 md:pt-0 md:pl-6 lg:pl-8"
+                }
               >
-                Agende sua Aula Grátis
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </a>
-            <a href="/turmas">
-              <Button
-                size="lg"
-                variant="outline"
-                className="bg-transparent text-lg px-8 py-6 border-white text-white hover:bg-white hover:text-gray-900"
-              >
-                Conheça Nossas Turmas
-              </Button>
-            </a>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 max-w-4xl mx-auto"
-          >
-            {[
-              { number: "20+", label: "Anos de História" },
-              { number: "20+", label: "Alunos Ativos" },
-              { number: "5+", label: "Faixas Pretas" },
-              { number: "100+", label: "Medalhas Conquistadas" },
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-red-500 mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-sm md:text-base text-gray-300">
-                  {stat.label}
-                </div>
+                <dt className="sr-only">{s.label}</dt>
+                <dd>
+                  <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold">{s.value}</div>
+                  <div className="text-xs md:text-[13px] text-faint">
+                    <span className="md:hidden">{s.short}</span>
+                    <span className="hidden md:inline">{s.label}</span>
+                  </div>
+                </dd>
               </div>
             ))}
-          </motion.div>
+          </dl>
+        </div>
+
+        <div className="order-1 md:order-2 relative h-[clamp(280px,42svh,400px)] md:h-auto">
+          <Image
+            src="/lp/foto-sobre.webp"
+            alt="Alunos de karatê da equipe OPAM em treino"
+            fill
+            priority
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover"
+          />
+          <span className="absolute left-4 top-4 lg:left-6 lg:top-6 bg-paper text-xs font-semibold px-2.5 py-1.5 rounded-[3px]">
+            Filiado SHINSHUKAN
+          </span>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-6 h-10 border-2 border-white rounded-full flex justify-center p-2"
-        >
-          <div className="w-1 h-3 bg-white rounded-full" />
-        </motion.div>
-      </motion.div>
+      <div className="relative z-10 mx-4 mt-7 md:mx-8 md:-mt-12 lg:mx-0 lg:mt-0 lg:absolute lg:inset-x-14 lg:-bottom-14">
+        <TrialForm id="agendar" />
+      </div>
     </section>
   );
 }

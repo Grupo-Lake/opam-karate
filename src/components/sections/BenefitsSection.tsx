@@ -1,101 +1,94 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
-import { useRef } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Heart, 
-  Target, 
-  Shield, 
-  Users, 
-  Trophy, 
-  Zap 
-} from "lucide-react";
+import { useState } from "react";
+import { Eyebrow } from "@/components/site/ui";
+import { cn } from "@/lib/utils";
 
 const benefits = [
   {
-    icon: Heart,
     title: "Saúde Física",
-    description: "Melhore sua condição cardiovascular, força, flexibilidade e coordenação motora."
+    description:
+      "Melhore sua condição cardiovascular, força, flexibilidade e coordenação motora.",
   },
   {
-    icon: Target,
     title: "Foco e Concentração",
-    description: "Desenvolva disciplina mental e capacidade de concentração para todas as áreas da vida."
+    description:
+      "Desenvolva disciplina mental e capacidade de concentração para todas as áreas da vida.",
   },
   {
-    icon: Shield,
     title: "Autodefesa",
-    description: "Aprenda técnicas eficazes de defesa pessoal e ganhe confiança."
+    description: "Aprenda técnicas eficazes de defesa pessoal e ganhe confiança.",
   },
   {
-    icon: Users,
     title: "Comunidade",
-    description: "Faça parte de uma família unida por respeito, valores e objetivos comuns."
+    description:
+      "Faça parte de uma família unida por respeito, valores e objetivos comuns.",
   },
   {
-    icon: Trophy,
     title: "Conquistas",
-    description: "Participe de campeonatos e alcance novos patamares na sua jornada."
+    description:
+      "Participe de campeonatos e alcance novos patamares na sua jornada.",
   },
   {
-    icon: Zap,
     title: "Autoconfiança",
-    description: "Desenvolva autoestima, autocontrole e capacidade de superação."
-  }
+    description:
+      "Desenvolva autoestima, autocontrole e capacidade de superação.",
+  },
 ];
 
+const INITIAL_MOBILE = 3;
+
 export default function BenefitsSection() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [expanded, setExpanded] = useState(false);
+  const hidden = benefits.length - INITIAL_MOBILE;
 
   return (
-    <section ref={ref} className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Benefícios do <span className="text-red-600">Karate</span>
-          </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Transforme sua vida através da prática do Karate
-          </p>
-          <div className="w-20 h-1 bg-red-600 mx-auto mt-4" />
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {benefits.map((benefit, index) => {
-            const Icon = benefit.icon;
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Card className="h-full hover:shadow-xl transition-shadow duration-300 border-t-4 border-t-red-600">
-                  <CardHeader>
-                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                      <Icon className="h-6 w-6 text-red-600" />
-                    </div>
-                    <CardTitle className="text-xl font-bold">{benefit.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-base">
-                      {benefit.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
+    <section className="px-5 pt-10 md:px-14 md:pt-16 lg:pt-[136px] md:pb-24">
+      <div className="mb-[18px] md:mb-10">
+        <Eyebrow>Benefícios</Eyebrow>
+        <h2 className="mt-2 md:mt-2.5 text-[30px] md:text-[52px] leading-[1.05] font-extrabold tracking-[-0.03em] md:max-w-[760px]">
+          Transforme sua vida através da prática do Karate.
+        </h2>
       </div>
+
+      <ol className="border-t-2 border-ink md:grid md:grid-cols-3">
+        {benefits.map((b, i) => (
+          <li
+            key={b.title}
+            className={cn(
+              "grid grid-cols-[34px_1fr] py-3.5 border-b border-ink/12",
+              "md:block md:py-7 md:px-7 md:border-b-0",
+              i % 3 === 0 && "md:pl-0",
+              i % 3 !== 0 && "md:border-l md:border-ink/15",
+              i < 3 && "md:border-b md:border-b-ink/15",
+              i >= INITIAL_MOBILE && !expanded && "hidden md:block",
+            )}
+          >
+            <span className="pt-1 md:pt-0 text-xs md:text-[13px] font-bold text-opam">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <div>
+              <div className="text-lg md:text-[22px] font-bold md:mt-2.5 md:mb-2">
+                {b.title}
+              </div>
+              <p className="mt-[3px] md:mt-0 text-sm md:text-[15px] leading-[1.45] md:leading-[1.5] text-muted-ink">
+                {b.description}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      {!expanded && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="md:hidden flex w-full justify-between py-3.5 border-b border-ink/12 text-[15px] font-bold"
+        >
+          <span>Ver mais {hidden} benefícios</span>
+          <span>+</span>
+        </button>
+      )}
     </section>
   );
 }
