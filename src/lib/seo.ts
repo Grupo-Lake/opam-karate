@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const SITE_URL = "https://opamkarate.com";
+export const SITE_URL = "https://karateopam.com.br";
 export const SITE_NAME = "OPAM KARATE";
 
 /** Per-page metadata with canonical URL plus matching Open Graph / Twitter cards. */
