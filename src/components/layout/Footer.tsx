@@ -33,6 +33,7 @@ export default function Footer() {
           <Link href="/sobre" className="hover:text-opam-soft">Sobre</Link>
           <Link href="/turmas" className="hover:text-opam-soft">Turma e Horários</Link>
           <Link href="/galeria" className="hover:text-opam-soft">Galeria</Link>
+          <Link href="/blog" className="hover:text-opam-soft">Blog</Link>
           <Link href="/contato" className="hover:text-opam-soft">Contato</Link>
           <Link href="/matricula" className="hover:text-opam-soft">Matrícula</Link>
         </div>
@@ -96,7 +97,18 @@ export default function Footer() {
 
       <div className="pt-6 text-xs text-paper/45 flex flex-col gap-1.5 md:flex-row md:justify-between">
         <span>© {new Date().getFullYear()} OPAM KARATE. Todos os direitos reservados.</span>
-        <span>Organização Paulista de Artes Marciais · Nin do Ryu</span>
+        <span>
+          Organização Paulista de Artes Marciais · Nin do Ryu · Desenvolvido
+          por{" "}
+          <a
+            href="https://grupolake.com.br"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-paper"
+          >
+            Grupo Lake
+          </a>
+        </span>
       </div>
     </footer>
   );
