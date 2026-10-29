@@ -27,7 +27,7 @@ export const FIRST_AID_REGISTRATION_LINK = whatsappLink(
 );
 
 const GRUPO_LAKE_URL = "https://grupolake.com.br";
-const CODEC_URL = "https://congressocodec.com.br";
+export const CODEC_URL = "https://www.congressocodec.com.br/";
 const INSTRUCTOR_URL = "https://www.instagram.com/prof_wagner_cortez/";
 
 const firstAidCourse: Post = {
@@ -46,7 +46,7 @@ const firstAidCourse: Post = {
   },
   body: [
     {
-      p: "Quem treina ou acompanha treinos sabe que um tombo, uma torção ou um mal-estar podem acontecer a qualquer momento. O que muda tudo é saber o que fazer nos primeiros minutos. Por isso a OPAM, com o apoio do CODEC, abre inscrições para o Curso de Primeiros Socorros para Atletas.",
+      p: "Quem treina ou acompanha treinos sabe que um tombo, uma torção ou um mal-estar podem acontecer a qualquer momento. O que muda tudo é saber o que fazer nos primeiros minutos. Por isso a OPAM, com o apoio do Congresso [CODEC](https://www.congressocodec.com.br/), abre inscrições para o Curso de Primeiros Socorros para Atletas.",
     },
     { h2: "O que você vai aprender" },
     {
@@ -96,7 +96,7 @@ const firstAidCourse: Post = {
     },
     { h2: "Uma ação em conjunto" },
     {
-      p: "O curso reúne a OPAM e o Congresso CODEC em torno de uma ideia que os dois defendem: cuidar de quem pratica esporte também faz parte do compromisso com a modalidade. A divulgação deste evento foi feita com o apoio do Grupo Lake, que atualizou os sites das duas iniciativas.",
+      p: "O curso reúne a OPAM e o Congresso [CODEC](https://www.congressocodec.com.br/) em torno de uma ideia que os dois defendem: cuidar de quem pratica esporte também faz parte do compromisso com a modalidade. A divulgação deste evento foi feita com o apoio do Grupo Lake, que atualizou os sites das duas iniciativas.",
     },
     {
       links: [
