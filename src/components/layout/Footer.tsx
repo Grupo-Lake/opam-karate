@@ -97,7 +97,18 @@ export default function Footer() {
 
       <div className="pt-6 text-xs text-paper/45 flex flex-col gap-1.5 md:flex-row md:justify-between">
         <span>© {new Date().getFullYear()} OPAM KARATE. Todos os direitos reservados.</span>
-        <span>Organização Paulista de Artes Marciais · Nin do Ryu</span>
+        <span>
+          Organização Paulista de Artes Marciais · Nin do Ryu · Desenvolvido
+          por{" "}
+          <a
+            href="https://grupolake.com.br"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-paper"
+          >
+            Grupo Lake
+          </a>
+        </span>
       </div>
     </footer>
   );
