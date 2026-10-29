@@ -33,6 +33,7 @@ export default function Footer() {
           <Link href="/sobre" className="hover:text-opam-soft">Sobre</Link>
           <Link href="/turmas" className="hover:text-opam-soft">Turma e Horários</Link>
           <Link href="/galeria" className="hover:text-opam-soft">Galeria</Link>
+          <Link href="/blog" className="hover:text-opam-soft">Blog</Link>
           <Link href="/contato" className="hover:text-opam-soft">Contato</Link>
           <Link href="/matricula" className="hover:text-opam-soft">Matrícula</Link>
         </div>

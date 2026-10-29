@@ -31,6 +31,7 @@ export const NAVIGATION = [
   { name: "Sobre", href: "/sobre" },
   { name: "Turma e Horários", href: "/turmas" },
   { name: "Galeria", href: "/galeria" },
+  { name: "Blog", href: "/blog" },
   { name: "Contato", href: "/contato" },
 ];
 
