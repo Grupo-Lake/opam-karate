@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { formatPostDate, getPost, POSTS, type PostBlock } from "@/lib/blog";
 import { pageMetadata, SITE_NAME, SITE_URL } from "@/lib/seo";
 import { Eyebrow, SiteButton } from "@/components/site/ui";
+import { RichText } from "@/components/site/RichText";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -39,7 +40,11 @@ function Block({ block }: { block: PostBlock }) {
     );
   }
   if ("p" in block) {
-    return <p className="mt-4 text-base md:text-lg leading-[1.7] text-body">{block.p}</p>;
+    return (
+      <p className="mt-4 text-base md:text-lg leading-[1.7] text-body">
+        <RichText text={block.p} linkClassName={linkClass} />
+      </p>
+    );
   }
   if ("ul" in block) {
     return (
